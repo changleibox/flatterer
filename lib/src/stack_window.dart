@@ -53,6 +53,7 @@ class StackWindowContainer extends StatefulWidget {
     this.direction = Axis.vertical,
     this.margin = _margin,
     this.alignment = 0,
+    this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
@@ -92,6 +93,9 @@ class StackWindowContainer extends StatefulWidget {
 
   /// 对齐方式，[-1,1]，0为居中，-1为最左边，1为最右边
   final double alignment;
+
+  /// 跟踪者
+  final LayerLink link;
 
   /// 隐藏回调
   final VoidCallback onDismiss;
@@ -209,6 +213,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
           direction: widget.direction,
           margin: widget.margin,
           alignment: widget.alignment,
+          link: widget.link,
           backgroundColor: widget.backgroundColor,
           borderRadius: widget.borderRadius,
           shadows: widget.shadows,
@@ -236,6 +241,7 @@ class StackWindow extends StatefulWidget {
     this.direction = Axis.vertical,
     this.margin = _margin,
     this.alignment = 0,
+    this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
@@ -276,6 +282,9 @@ class StackWindow extends StatefulWidget {
 
   /// 对齐方式，[-1,1]，0为居中，-1为最左边，1为最右边
   final double alignment;
+
+  /// 跟踪者
+  final LayerLink link;
 
   /// 隐藏回调
   final VoidCallback onDismiss;
@@ -355,12 +364,20 @@ class StackWindowState extends State<StackWindow> {
 
   @override
   Widget build(BuildContext context) {
+    Widget child = _route?.buildPage(context, null, null);
+    if (widget.link != null && child != null) {
+      child = CompositedTransformFollower(
+        link: widget.link,
+        offset: -widget.anchor.topLeft,
+        child: child,
+      );
+    }
     return RepaintBoundary(
       child: DismissWindowScope(
         dismiss: dismiss,
         child: AnimatedSwitcher(
           duration: Duration(milliseconds: 300),
-          child: _route?.buildPage(context, null, null),
+          child: child,
         ),
       ),
     );

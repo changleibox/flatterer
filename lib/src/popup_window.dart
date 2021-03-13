@@ -174,7 +174,6 @@ Future<T> showPopupWindow<T>(
   assert(barrierDismissible != null);
   assert(useRootNavigator != null);
   assert(preferBelow != null);
-  FocusScope.of(context).unfocus();
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   return navigator.push<T>(
     FlattererWindowRoute<T>(
