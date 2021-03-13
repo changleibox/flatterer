@@ -45,13 +45,13 @@ class AnimatedOverlay {
     @required RouteTransitionsBuilder transitionBuilder,
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.linear,
-    bool isAnimate = true,
+    bool immediately = false,
   }) {
     assert(builder != null);
     assert(transitionBuilder != null);
     assert(transitionDuration != null);
     assert(curve != null);
-    assert(isAnimate != null);
+    assert(immediately != null);
     if (_controller != null) {
       _dispose();
     }
@@ -76,14 +76,14 @@ class AnimatedOverlay {
       );
       overlayState.insert(_overlay);
 
-      if (isAnimate) {
+      if (immediately) {
+        toolbarController.value = toolbarController.upperBound;
+      } else {
         toolbarController.animateTo(
           toolbarController.upperBound,
           duration: transitionDuration,
           curve: curve,
         );
-      } else {
-        toolbarController.value = toolbarController.upperBound;
       }
     }
 
@@ -97,12 +97,12 @@ class AnimatedOverlay {
   void remove({
     Duration transitionDuration = const Duration(milliseconds: 300),
     Curve curve = Curves.linear,
-    bool isAnimate = true,
+    bool immediately = false,
   }) {
     assert(transitionDuration != null);
     assert(curve != null);
-    assert(isAnimate != null);
-    if (_controller == null || !isAnimate) {
+    assert(immediately != null);
+    if (_controller == null || immediately) {
       _dispose();
       return;
     }

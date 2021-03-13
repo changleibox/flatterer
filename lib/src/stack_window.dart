@@ -4,6 +4,7 @@
 
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_window.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
@@ -115,8 +116,6 @@ class StackWindowContainer extends StatefulWidget {
 
 /// 浮动提示state
 class StackWindowContainerState extends State<StackWindowContainer> with SingleTickerProviderStateMixin {
-  final _focusNode = FocusScopeNode();
-
   Rect _anchor;
   AnimationController _controller;
 
@@ -126,18 +125,19 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
     _controller?.dispose();
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
     super.dispose();
   }
 
-  void _onFocusChanged(bool hasFocus) {
-    if (!hasFocus) {
+  void _handlePointerEvent(PointerEvent event) {
+    if (event is PointerUpEvent || event is PointerCancelEvent || event is PointerDownEvent) {
       dismiss();
     }
   }
@@ -149,7 +149,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   ///
   /// [anchor]-锚点，这里坐标是相对于父控件的坐标
   void show(Rect anchor) {
-    final isAnimate = _anchor == null || anchor == _anchor;
+    final immediately = _anchor != null && anchor != _anchor;
 
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
@@ -162,14 +162,13 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
     animation.addListener(_listener);
 
-    if (isAnimate) {
-      _controller.value = _controller.upperBound;
-    } else {
+    if (immediately) {
       _controller.forward(from: _controller.lowerBound);
+    } else {
+      _controller.value = _controller.upperBound;
     }
 
     _anchor = anchor;
-    _focusNode.requestFocus();
   }
 
   void _showOrUpdate(Rect anchor) {
@@ -182,7 +181,6 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   /// 隐藏
   void dismiss() {
-    _focusNode.unfocus();
     _onPostFrame(() {
       setState(() {
         _anchor = null;
@@ -192,33 +190,28 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   @override
   Widget build(BuildContext context) {
-    return FocusScope(
-      node: _focusNode,
-      canRequestFocus: true,
-      onFocusChange: _onFocusChanged,
-      child: Stack(
-        children: [
-          widget.child,
-          StackWindow(
-            anchor: _anchor,
-            builder: widget.builder,
-            offset: widget.offset,
-            indicateSize: widget.indicateSize,
-            direction: widget.direction,
-            margin: widget.margin,
-            alignment: widget.alignment,
-            backgroundColor: widget.backgroundColor,
-            borderRadius: widget.borderRadius,
-            shadows: widget.shadows,
-            barrierDismissible: widget.barrierDismissible,
-            barrierColor: widget.barrierColor,
-            onDismiss: () {
-              widget.onDismiss?.call();
-              dismiss();
-            },
-          ),
-        ],
-      ),
+    return Stack(
+      children: [
+        widget.child,
+        StackWindow(
+          anchor: _anchor,
+          builder: widget.builder,
+          offset: widget.offset,
+          indicateSize: widget.indicateSize,
+          direction: widget.direction,
+          margin: widget.margin,
+          alignment: widget.alignment,
+          backgroundColor: widget.backgroundColor,
+          borderRadius: widget.borderRadius,
+          shadows: widget.shadows,
+          barrierDismissible: widget.barrierDismissible,
+          barrierColor: widget.barrierColor,
+          onDismiss: () {
+            widget.onDismiss?.call();
+            dismiss();
+          },
+        ),
+      ],
     );
   }
 }

@@ -6,6 +6,7 @@ import 'package:flatterer/src/animated_overlay.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_window.dart';
 import 'package:flatterer/src/geometry.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
 /// 三角形大小
@@ -48,7 +49,6 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-    this.hasFocus = true,
   })  : assert(child != null),
         assert(builder != null),
         assert(offset != null),
@@ -61,7 +61,6 @@ class OverlayWindowAnchor extends StatefulWidget {
         assert(shadows != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
-        assert(hasFocus != null),
         super(key: key);
 
   /// 需要对齐的child
@@ -106,9 +105,6 @@ class OverlayWindowAnchor extends StatefulWidget {
   /// 优先显示在末尾
   final bool preferBelow;
 
-  /// 是否维护自己的焦点
-  final bool hasFocus;
-
   @override
   OverlayWindowAnchorState createState() => OverlayWindowAnchorState();
 }
@@ -116,7 +112,6 @@ class OverlayWindowAnchor extends StatefulWidget {
 /// 浮动提示state
 class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTickerProviderStateMixin {
   final _overlayLayerLink = LayerLink();
-  final _focusNode = FocusScopeNode();
 
   OverlayWindow _overlayWindow;
   Rect _anchor;
@@ -128,19 +123,20 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       vsync: this,
       duration: Duration(milliseconds: 300),
     );
+    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
   }
 
   @override
   void dispose() {
-    _focusNode.dispose();
-    _overlayWindow?.dismiss(isAnimate: false);
+    _overlayWindow?.dismiss(immediately: true);
     _controller?.dispose();
+    GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
     super.dispose();
   }
 
-  void _onFocusChanged(bool hasFocus) {
-    if (!hasFocus) {
+  void _handlePointerEvent(PointerEvent event) {
+    if (event is PointerUpEvent || event is PointerCancelEvent || event is PointerDownEvent) {
       dismiss();
     }
   }
@@ -154,7 +150,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   /// [bounds]-边界，在屏幕中的位置
   /// [compositedTransformTarget]-compositedTransformTarget控件的坐标，默认为anchor的坐标
   void show({Rect anchor, Rect compositedTransformTarget, Rect bounds}) {
-    final isAnimate = _anchor == null || anchor == _anchor;
+    final immediately = _anchor != null && anchor != _anchor;
 
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
@@ -162,23 +158,22 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       if (animation.isCompleted) {
         animation.removeListener(_listener);
       }
-      _showOrUpdate(animation.value, compositedTransformTarget, isAnimate, bounds: bounds);
+      _showOrUpdate(animation.value, compositedTransformTarget, immediately, bounds: bounds);
     }
 
     animation.addListener(_listener);
 
-    if (isAnimate) {
-      _controller.value = _controller.upperBound;
-    } else {
+    if (immediately) {
       _controller.forward(from: _controller.lowerBound);
+    } else {
+      _controller.value = _controller.upperBound;
     }
 
     _anchor = anchor;
-    _focusNode.requestFocus();
   }
 
-  void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool isAnimate, {Rect bounds}) {
-    _overlayWindow?.dismiss(isAnimate: isAnimate);
+  void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
+    _overlayWindow?.dismiss(immediately: immediately);
     _overlayWindow = OverlayWindow(context);
     _overlayWindow.show(
       builder: widget.builder,
@@ -191,7 +186,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       alignment: widget.alignment,
       toolbarLayerLink: _overlayLayerLink,
       bounds: bounds,
-      isAnimate: isAnimate,
+      immediately: immediately,
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,
@@ -213,7 +208,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   /// 隐藏
   void dismiss() {
-    _focusNode.unfocus();
     _overlayWindow?.dismiss();
     _overlayWindow = null;
     _anchor = null;
@@ -221,18 +215,9 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   @override
   Widget build(BuildContext context) {
-    var child = widget.child;
-    if (widget.hasFocus) {
-      child = FocusScope(
-        node: _focusNode,
-        canRequestFocus: true,
-        onFocusChange: _onFocusChanged,
-        child: widget.child,
-      );
-    }
     return CompositedTransformTarget(
       link: _overlayLayerLink,
-      child: child,
+      child: widget.child,
     );
   }
 }
@@ -391,7 +376,7 @@ class OverlayWindow {
     double alignment = 0,
     LayerLink toolbarLayerLink,
     Rect bounds,
-    bool isAnimate = true,
+    bool immediately = false,
     Color backgroundColor = Colors.white,
     BorderRadiusGeometry borderRadius = _borderRadius,
     List<BoxShadow> shadows = _shadows,
@@ -400,7 +385,7 @@ class OverlayWindow {
     Color barrierColor,
     bool preferBelow = true,
   }) {
-    assert(isAnimate != null);
+    assert(immediately != null);
     final currentAnchor = anchor ?? localToGlobal(context);
     _route = FlattererWindowRoute<dynamic>(
       builder,
@@ -444,20 +429,20 @@ class OverlayWindow {
       },
       transitionDuration: _route.transitionDuration,
       curve: _route.barrierCurve,
-      isAnimate: isAnimate,
+      immediately: immediately,
     );
   }
 
   /// 隐藏
-  void dismiss({bool isAnimate = true}) {
-    assert(isAnimate != null);
+  void dismiss({bool immediately = false}) {
+    assert(immediately != null);
     if (_route == null) {
-      _overlay.remove(isAnimate: false);
+      _overlay.remove(immediately: true);
     } else {
       _overlay.remove(
         transitionDuration: _route.reverseTransitionDuration,
         curve: _route.barrierCurve,
-        isAnimate: isAnimate,
+        immediately: immediately,
       );
     }
   }
