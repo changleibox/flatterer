@@ -2,7 +2,7 @@
  * Copyright (c) 2020 CHANGLEI. All rights reserved.
  */
 
-import 'package:flatterer/src/flatterer_window.dart';
+import 'package:flatterer/src/flatterer_window_route.dart';
 import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/material.dart';
 
@@ -21,6 +21,12 @@ const _shadows = <BoxShadow>[
     offset: Offset(0, 0),
   ),
 ];
+
+/// 边框
+const _side = BorderSide(
+  color: Color(0x1F000000),
+  width: 1,
+);
 
 /// 默认圆角
 const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
@@ -42,6 +48,7 @@ class PopupWindowAnchor extends StatefulWidget {
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
     this.shadows = _shadows,
+    this.side = _side,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -55,6 +62,7 @@ class PopupWindowAnchor extends StatefulWidget {
         assert(backgroundColor != null),
         assert(borderRadius != null),
         assert(shadows != null),
+        assert(side != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
         super(key: key);
@@ -89,6 +97,12 @@ class PopupWindowAnchor extends StatefulWidget {
   /// 阴影
   final List<BoxShadow> shadows;
 
+  /// The border outline's color and weight.
+  ///
+  /// If [side] is [BorderSide.none], which is the default, an outline is not drawn.
+  /// Otherwise the outline is centered over the shape's boundary.
+  final BorderSide side;
+
   /// 点击外部区域弹窗是否消失
   final bool barrierDismissible;
 
@@ -122,6 +136,7 @@ class PopupWindowAnchorState extends State<PopupWindowAnchor> {
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,
+      side: widget.side,
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
@@ -139,7 +154,7 @@ class PopupWindowAnchorState extends State<PopupWindowAnchor> {
   }
 }
 
-/// 显示popupwindow
+/// 显示popupWindow
 ///
 /// [anchor]-锚点，在屏幕中的位置
 /// [bounds]-边界，在屏幕中的位置
@@ -156,6 +171,7 @@ Future<T> showPopupWindow<T>(
   Color backgroundColor = Colors.white,
   BorderRadiusGeometry borderRadius = _borderRadius,
   List<BoxShadow> shadows = _shadows,
+  BorderSide side = _side,
   bool useRootNavigator = true,
   bool barrierDismissible = true,
   Color barrierColor,
@@ -171,6 +187,7 @@ Future<T> showPopupWindow<T>(
   assert(backgroundColor != null);
   assert(borderRadius != null);
   assert(shadows != null);
+  assert(side != null);
   assert(barrierDismissible != null);
   assert(useRootNavigator != null);
   assert(preferBelow != null);
@@ -188,6 +205,7 @@ Future<T> showPopupWindow<T>(
       backgroundColor: backgroundColor,
       borderRadius: borderRadius,
       shadows: shadows,
+      side: side,
       preferBelow: preferBelow,
       capturedThemes: InheritedTheme.capture(from: context, to: navigator.context),
       barrierDismissible: barrierDismissible,

@@ -22,6 +22,12 @@ const _shadows = <BoxShadow>[
   ),
 ];
 
+/// 边框
+const _side = BorderSide(
+  color: Color(0x1F000000),
+  width: 1,
+);
+
 /// 默认圆角
 const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
 
@@ -42,6 +48,7 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
     this.shadows = _shadows,
+    this.side = _side,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -57,6 +64,7 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
         assert(backgroundColor != null),
         assert(borderRadius != null),
         assert(shadows != null),
+        assert(side != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
         assert(capturedThemes != null),
@@ -96,6 +104,12 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
 
   /// 阴影
   final List<BoxShadow> shadows;
+
+  /// The border outline's color and weight.
+  ///
+  /// If [side] is [BorderSide.none], which is the default, an outline is not drawn.
+  /// Otherwise the outline is centered over the shape's boundary.
+  final BorderSide side;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -140,6 +154,7 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
             backgroundColor: backgroundColor,
             borderRadius: borderRadius,
             shadows: shadows,
+            side: side,
             child: capturedThemes.wrap(builder(context)),
           ),
         );
@@ -180,6 +195,7 @@ class _FlattererWindow extends StatelessWidget {
     @required this.backgroundColor,
     @required this.borderRadius,
     @required this.shadows,
+    @required this.side,
   })  : assert(child != null),
         assert(anchor != null),
         assert(direction != null),
@@ -187,6 +203,7 @@ class _FlattererWindow extends StatelessWidget {
         assert(backgroundColor != null),
         assert(borderRadius != null),
         assert(shadows != null),
+        assert(side != null),
         super(key: key);
 
   final Widget child;
@@ -196,6 +213,12 @@ class _FlattererWindow extends StatelessWidget {
   final Color backgroundColor;
   final BorderRadiusGeometry borderRadius;
   final List<BoxShadow> shadows;
+
+  /// The border outline's color and weight.
+  ///
+  /// If [side] is [BorderSide.none], which is the default, an outline is not drawn.
+  /// Otherwise the outline is centered over the shape's boundary.
+  final BorderSide side;
 
   @override
   Widget build(BuildContext context) {
@@ -210,10 +233,7 @@ class _FlattererWindow extends StatelessWidget {
             indicateSize: indicateSize,
             direction: direction,
             anchor: anchor,
-            side: BorderSide(
-              color: Theme.of(context).dividerColor,
-              width: 1,
-            ),
+            side: side,
           ),
           shadows: shadows,
         ),

@@ -4,7 +4,7 @@
 
 import 'package:flatterer/src/animated_overlay.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
-import 'package:flatterer/src/flatterer_window.dart';
+import 'package:flatterer/src/flatterer_window_route.dart';
 import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -25,6 +25,12 @@ const _shadows = <BoxShadow>[
     offset: Offset(0, 0),
   ),
 ];
+
+/// 边框
+const _side = BorderSide(
+  color: Color(0x1F000000),
+  width: 1,
+);
 
 /// 默认圆角
 const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
@@ -48,6 +54,7 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
     this.shadows = _shadows,
+    this.side = _side,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -61,6 +68,7 @@ class OverlayWindowAnchor extends StatefulWidget {
         assert(backgroundColor != null),
         assert(borderRadius != null),
         assert(shadows != null),
+        assert(side != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
         super(key: key);
@@ -100,6 +108,12 @@ class OverlayWindowAnchor extends StatefulWidget {
 
   /// 阴影
   final List<BoxShadow> shadows;
+
+  /// The border outline's color and weight.
+  ///
+  /// If [side] is [BorderSide.none], which is the default, an outline is not drawn.
+  /// Otherwise the outline is centered over the shape's boundary.
+  final BorderSide side;
 
   /// 点击外部区域弹窗是否消失
   final bool barrierDismissible;
@@ -218,6 +232,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,
+      side: widget.side,
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
@@ -271,6 +286,7 @@ class OverlayWindowContainer extends StatefulWidget {
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
     this.shadows = _shadows,
+    this.side = _side,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -284,6 +300,7 @@ class OverlayWindowContainer extends StatefulWidget {
         assert(backgroundColor != null),
         assert(borderRadius != null),
         assert(shadows != null),
+        assert(side != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
         super(key: key);
@@ -323,6 +340,12 @@ class OverlayWindowContainer extends StatefulWidget {
 
   /// 阴影
   final List<BoxShadow> shadows;
+
+  /// The border outline's color and weight.
+  ///
+  /// If [side] is [BorderSide.none], which is the default, an outline is not drawn.
+  /// Otherwise the outline is centered over the shape's boundary.
+  final BorderSide side;
 
   /// 点击外部区域弹窗是否消失
   final bool barrierDismissible;
@@ -376,6 +399,7 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,
+      side: widget.side,
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
@@ -423,11 +447,25 @@ class OverlayWindow {
     Color backgroundColor = Colors.white,
     BorderRadiusGeometry borderRadius = _borderRadius,
     List<BoxShadow> shadows = _shadows,
+    BorderSide side = _side,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
     Color barrierColor,
     bool preferBelow = true,
   }) {
+    assert(builder != null);
+    assert(offset != null);
+    assert(indicateSize != null);
+    assert(direction != null);
+    assert(margin != null && margin >= 0);
+    assert(alignment != null && alignment.abs() <= 1);
+    assert(backgroundColor != null);
+    assert(borderRadius != null);
+    assert(shadows != null);
+    assert(side != null);
+    assert(barrierDismissible != null);
+    assert(useRootNavigator != null);
+    assert(preferBelow != null);
     assert(immediately != null);
     final currentAnchor = anchor ?? localToGlobal(context);
     _route = FlattererWindowRoute<dynamic>(
@@ -442,6 +480,7 @@ class OverlayWindow {
       backgroundColor: backgroundColor,
       borderRadius: borderRadius,
       shadows: shadows,
+      side: side,
       barrierDismissible: barrierDismissible,
       barrierColor: barrierColor,
       preferBelow: preferBelow,
