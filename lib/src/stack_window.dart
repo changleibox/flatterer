@@ -129,7 +129,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
@@ -364,7 +364,7 @@ class StackWindowState extends State<StackWindow> {
 
   @override
   Widget build(BuildContext context) {
-    Widget child = _route?.buildPage(context, null, null);
+    var child = _route?.buildPage(context, null, null);
     if (widget.link != null && child != null) {
       child = CompositedTransformFollower(
         link: widget.link,
@@ -376,7 +376,7 @@ class StackWindowState extends State<StackWindow> {
       child: DismissWindowScope(
         dismiss: dismiss,
         child: AnimatedSwitcher(
-          duration: Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 300),
           child: child,
         ),
       ),

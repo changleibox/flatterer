@@ -93,9 +93,9 @@ Offset _positionDependentBoxVertical({
   assert(margin != null);
   assert(alignment != null && alignment.abs() <= 1);
   // VERTICAL DIRECTION
-  final bool fitsBelow = target.dy + verticalOffset + childSize.height <= size.height - margin;
-  final bool fitsAbove = target.dy - verticalOffset - childSize.height >= margin;
-  final bool tooltipBelow = preferBelow ? fitsBelow || !fitsAbove : !(fitsAbove || !fitsBelow);
+  final fitsBelow = target.dy + verticalOffset + childSize.height <= size.height - margin;
+  final fitsAbove = target.dy - verticalOffset - childSize.height >= margin;
+  final tooltipBelow = preferBelow ? fitsBelow || !fitsAbove : !(fitsAbove || !fitsBelow);
   double y;
   if (tooltipBelow) {
     y = math.min(target.dy + verticalOffset, size.height - margin);
@@ -107,9 +107,9 @@ Offset _positionDependentBoxVertical({
   if (size.width - margin * 2.0 < childSize.width) {
     x = (size.width - childSize.width) / 2.0;
   } else {
-    final double adjustOffset = _adjustOffset(childSize.width, alignment);
-    final double normalizedTargetX = (target.dx.clamp(margin, size.width - margin) as double) - adjustOffset;
-    final double edge = margin + childSize.width / 2.0;
+    final adjustOffset = _adjustOffset(childSize.width, alignment);
+    final normalizedTargetX = (target.dx.clamp(margin, size.width - margin) as double) - adjustOffset;
+    final edge = margin + childSize.width / 2.0;
     if (normalizedTargetX < edge) {
       x = margin;
     } else if (normalizedTargetX > size.width - edge) {
@@ -139,9 +139,9 @@ Offset _positionDependentBoxHorizontal({
   assert(margin != null);
   assert(alignment != null && alignment.abs() <= 1);
   // HORIZONTAL DIRECTION
-  final bool fitsBelow = target.dx + horizontalOffset + childSize.width <= size.width - margin;
-  final bool fitsAbove = target.dx - horizontalOffset - childSize.width >= margin;
-  final bool tooltipBelow = preferBelow ? fitsBelow || !fitsAbove : !(fitsAbove || !fitsBelow);
+  final fitsBelow = target.dx + horizontalOffset + childSize.width <= size.width - margin;
+  final fitsAbove = target.dx - horizontalOffset - childSize.width >= margin;
+  final tooltipBelow = preferBelow ? fitsBelow || !fitsAbove : !(fitsAbove || !fitsBelow);
   double x;
   if (tooltipBelow) {
     x = math.min(target.dx + horizontalOffset, size.width - margin);
@@ -153,9 +153,9 @@ Offset _positionDependentBoxHorizontal({
   if (size.height - margin * 2.0 < childSize.height) {
     y = (size.height - childSize.height) / 2.0;
   } else {
-    final double adjustOffset = _adjustOffset(childSize.height, alignment);
-    final double normalizedTargetY = (target.dy.clamp(margin, size.height - margin) as double) - adjustOffset;
-    final double edge = margin + childSize.height / 2.0;
+    final adjustOffset = _adjustOffset(childSize.height, alignment);
+    final normalizedTargetY = (target.dy.clamp(margin, size.height - margin) as double) - adjustOffset;
+    final edge = margin + childSize.height / 2.0;
     if (normalizedTargetY < edge) {
       y = margin;
     } else if (normalizedTargetY > size.height - edge) {
@@ -184,7 +184,7 @@ Rect localToGlobal(BuildContext context, {Offset point, RenderObject ancestor}) 
     return Rect.zero;
   }
   point ??= Offset.zero;
-  final RenderBox renderObject = context.findRenderObject() as RenderBox;
+  final renderObject = context.findRenderObject() as RenderBox;
   return Rect.fromPoints(
     renderObject.localToGlobal(point, ancestor: ancestor),
     renderObject.localToGlobal(renderObject.size.bottomRight(point), ancestor: ancestor),
@@ -210,7 +210,7 @@ Rect globalToLocal(BuildContext context, {Offset point, RenderObject ancestor}) 
     return Rect.zero;
   }
   point ??= Offset.zero;
-  final RenderBox renderObject = context.findRenderObject() as RenderBox;
+  final renderObject = context.findRenderObject() as RenderBox;
   return Rect.fromPoints(
     renderObject.globalToLocal(point, ancestor: ancestor),
     renderObject.globalToLocal(renderObject.size.bottomRight(point), ancestor: ancestor),
@@ -223,7 +223,7 @@ Rect localToRepaintBoundary(BuildContext context, {Offset point}) {
     return Rect.zero;
   }
   point ??= Offset.zero;
-  final RenderObject renderObject = context.findRenderObject();
-  final RenderObject ancestor = context.findAncestorRenderObjectOfType<RenderRepaintBoundary>() ?? renderObject;
+  final renderObject = context.findRenderObject();
+  final ancestor = context.findAncestorRenderObjectOfType<RenderRepaintBoundary>() ?? renderObject;
   return localToGlobal(context, point: point, ancestor: ancestor);
 }

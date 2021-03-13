@@ -56,18 +56,18 @@ class AnimatedOverlay {
       _dispose();
     }
 
-    final OverlayState overlayState = Overlay.of(context, rootOverlay: rootOverlay);
-    final AnimationController toolbarController = AnimationController(
+    final overlayState = Overlay.of(context, rootOverlay: rootOverlay);
+    final toolbarController = AnimationController(
       vsync: overlayState,
       duration: transitionDuration,
     );
 
-    final Animation<double> animation = toolbarController.view;
+    final animation = toolbarController.view;
 
     final Widget child = AnimatedBuilder(
       animation: animation,
-      child: builder(context, animation, animation),
       builder: (BuildContext context, Widget child) => transitionBuilder(context, animation, animation, child),
+      child: builder(context, animation, animation),
     );
 
     void _insertOverlay() {
@@ -106,12 +106,12 @@ class AnimatedOverlay {
       _dispose();
       return;
     }
-    final TickerFuture animateBack = _controller.animateBack(
+    final animateBack = _controller.animateBack(
       _controller.lowerBound,
       duration: transitionDuration,
       curve: curve,
     );
-    final OverlayEntry oldOverlay = _overlay;
+    final oldOverlay = _overlay;
     animateBack.whenCompleteOrCancel(() {
       if (oldOverlay != _overlay) {
         return;

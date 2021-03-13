@@ -11,6 +11,7 @@ import 'package:flutter/cupertino.dart';
 ///
 /// 一组控件，实际上就是对row和column的封装，方便实现统一的边距和分割线
 class WidgetGroup extends StatelessWidget {
+  /// 构造函数
   WidgetGroup({
     Key key,
     this.alignment = MainAxisAlignment.start,
@@ -38,7 +39,7 @@ class WidgetGroup extends StatelessWidget {
               )
             : ChildBuilderDelegate(
                 (BuildContext context, int index) {
-                  final int itemIndex = index ~/ 2;
+                  final itemIndex = index ~/ 2;
                   Widget widget;
                   if (index.isEven) {
                     widget = children[itemIndex];
@@ -57,6 +58,7 @@ class WidgetGroup extends StatelessWidget {
               ),
         super(key: key);
 
+  /// 创建一个固定分隔距离
   factory WidgetGroup.spacing({
     Key key,
     MainAxisAlignment alignment = MainAxisAlignment.start,
@@ -79,7 +81,6 @@ class WidgetGroup extends StatelessWidget {
       textDirection: textDirection,
       verticalDirection: verticalDirection,
       textBaseline: textBaseline,
-      children: children,
       direction: direction,
       divider: spacing == 0
           ? null
@@ -88,9 +89,11 @@ class WidgetGroup extends StatelessWidget {
               height: direction == Axis.vertical ? spacing : null,
               padding: EdgeInsets.zero,
             ),
+      children: children,
     );
   }
 
+  /// builder
   WidgetGroup.builder({
     Key key,
     this.alignment = MainAxisAlignment.start,
@@ -119,6 +122,7 @@ class WidgetGroup extends StatelessWidget {
         ),
         super(key: key);
 
+  /// separated
   WidgetGroup.separated({
     Key key,
     this.alignment = MainAxisAlignment.start,
@@ -141,7 +145,7 @@ class WidgetGroup extends StatelessWidget {
         assert(itemCount == null || itemCount >= 0),
         childrenDelegate = ChildBuilderDelegate(
           (BuildContext context, int index) {
-            final int itemIndex = index ~/ 2;
+            final itemIndex = index ~/ 2;
             Widget widget;
             if (index.isEven) {
               widget = itemBuilder(context, itemIndex);
@@ -166,6 +170,7 @@ class WidgetGroup extends StatelessWidget {
         ),
         super(key: key);
 
+  /// 自定义，使用childrenDelegate
   const WidgetGroup.custom({
     Key key,
     this.alignment = MainAxisAlignment.start,
@@ -181,19 +186,35 @@ class WidgetGroup extends StatelessWidget {
         assert(childrenDelegate != null),
         super(key: key);
 
+  /// 主轴对齐方式
   final MainAxisAlignment alignment;
+
+  /// 主轴填充方式，min or max
   final MainAxisSize mainAxisSize;
+
+  /// 交叉方向对齐方式
   final CrossAxisAlignment crossAxisAlignment;
+
+  /// text direction
   final TextDirection textDirection;
+
+  /// Determines the order to lay children out vertically and how to interpret
+  /// `start` and `end` in the vertical direction.
   final VerticalDirection verticalDirection;
+
+  /// baseline
   final TextBaseline textBaseline;
+
+  /// 方向，垂直或水平
   final Axis direction;
+
+  /// 构建child
   final ChildDelegate childrenDelegate;
 
   @override
   Widget build(BuildContext context) {
-    final int childCount = childrenDelegate.estimatedChildCount;
-    final List<Widget> children = List<Widget>.generate(childCount, (int index) {
+    final childCount = childrenDelegate.estimatedChildCount;
+    final children = List<Widget>.generate(childCount, (int index) {
       return childrenDelegate.build(context, index);
     });
 
@@ -203,10 +224,10 @@ class WidgetGroup extends StatelessWidget {
           mainAxisAlignment: alignment ?? MainAxisAlignment.start,
           mainAxisSize: mainAxisSize ?? MainAxisSize.max,
           crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          children: children,
           textDirection: textDirection,
           verticalDirection: verticalDirection,
           textBaseline: textBaseline,
+          children: children,
         );
         break;
       case Axis.vertical:
@@ -214,10 +235,10 @@ class WidgetGroup extends StatelessWidget {
           mainAxisAlignment: alignment ?? MainAxisAlignment.start,
           mainAxisSize: mainAxisSize ?? MainAxisSize.max,
           crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
-          children: children,
           textDirection: textDirection,
           verticalDirection: verticalDirection,
           textBaseline: textBaseline,
+          children: children,
         );
         break;
     }

@@ -122,7 +122,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 300),
     );
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
