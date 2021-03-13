@@ -4,7 +4,6 @@
 
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_window.dart';
-import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -123,7 +122,6 @@ class StackWindowContainer extends StatefulWidget {
 class StackWindowContainerState extends State<StackWindowContainer> with SingleTickerProviderStateMixin {
   Rect _anchor;
   AnimationController _controller;
-  GlobalKey _windowKey;
 
   @override
   void initState() {
@@ -143,7 +141,15 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if ((event is PointerUpEvent || event is PointerCancelEvent) && localToGlobal(_windowKey?.currentContext)?.contains(event.localPosition) != true) {
+    if (!isShowing) {
+      return;
+    }
+    final result = HitTestResult();
+    WidgetsBinding.instance.hitTest(result, event.position);
+    if (event is PointerUpEvent || event is PointerCancelEvent) {
+      if (result.path.map((e) => e.target).any((element) => element is RenderMetaData && element.metaData == this)) {
+        return;
+      }
       dismiss();
     }
   }
@@ -178,7 +184,6 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _showOrUpdate(Rect anchor) {
-    _windowKey = GlobalKey();
     _onPostFrame(() {
       setState(() {
         _anchor = anchor;
@@ -203,8 +208,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
         StackWindow(
           anchor: _anchor,
           builder: (context) {
-            return KeyedSubtree(
-              key: _windowKey,
+            return MetaData(
+              metaData: this,
+              behavior: HitTestBehavior.deferToChild,
               child: widget.builder(context),
             );
           },
