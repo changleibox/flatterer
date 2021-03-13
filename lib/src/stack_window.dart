@@ -146,7 +146,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (!isShowing) {
+    if (!isShowing || !widget.barrierDismissible) {
       return;
     }
     final result = HitTestResult();

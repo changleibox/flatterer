@@ -150,7 +150,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (!isShowing) {
+    if (!isShowing || !widget.barrierDismissible) {
       return;
     }
     final result = HitTestResult();
