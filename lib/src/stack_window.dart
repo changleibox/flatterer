@@ -59,6 +59,7 @@ class StackWindowContainer extends StatefulWidget {
     this.shadows = _shadows,
     this.barrierDismissible = true,
     this.barrierColor,
+    this.preferBelow = true,
   })  : assert(child != null),
         assert(builder != null),
         assert(offset != null),
@@ -70,6 +71,7 @@ class StackWindowContainer extends StatefulWidget {
         assert(borderRadius != null),
         assert(shadows != null),
         assert(barrierDismissible != null),
+        assert(preferBelow != null),
         super(key: key);
 
   /// 需要对齐的child
@@ -113,6 +115,9 @@ class StackWindowContainer extends StatefulWidget {
 
   /// 遮罩颜色
   final Color barrierColor;
+
+  /// 优先显示在末尾
+  final bool preferBelow;
 
   @override
   StackWindowContainerState createState() => StackWindowContainerState();
@@ -225,6 +230,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
           shadows: widget.shadows,
           barrierDismissible: widget.barrierDismissible,
           barrierColor: widget.barrierColor,
+          preferBelow: widget.preferBelow,
           onDismiss: () {
             widget.onDismiss?.call();
             dismiss();

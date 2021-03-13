@@ -43,6 +43,7 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.direction = Axis.vertical,
     this.margin = _margin,
     this.alignment = 0,
+    this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
@@ -85,6 +86,9 @@ class OverlayWindowAnchor extends StatefulWidget {
   /// 对齐方式，[-1,1]，0为居中，-1为最左边，1为最右边
   final double alignment;
 
+  /// 跟踪者
+  final LayerLink link;
+
   /// 隐藏回调
   final VoidCallback onDismiss;
 
@@ -112,7 +116,7 @@ class OverlayWindowAnchor extends StatefulWidget {
 
 /// 浮动提示state
 class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTickerProviderStateMixin {
-  final _overlayLayerLink = LayerLink();
+  LayerLink _link;
 
   OverlayWindow _overlayWindow;
   Rect _anchor;
@@ -124,8 +128,17 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       vsync: this,
       duration: const Duration(milliseconds: 300),
     );
+    _link = widget.link ?? LayerLink();
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
+  }
+
+  @override
+  void didUpdateWidget(covariant OverlayWindowAnchor oldWidget) {
+    if (widget.link != oldWidget.link) {
+      _link = widget.link ?? LayerLink();
+    }
+    super.didUpdateWidget(oldWidget);
   }
 
   @override
@@ -199,7 +212,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       direction: widget.direction,
       margin: widget.margin,
       alignment: widget.alignment,
-      toolbarLayerLink: _overlayLayerLink,
+      link: _link,
       bounds: bounds,
       immediately: immediately,
       backgroundColor: widget.backgroundColor,
@@ -231,7 +244,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   @override
   Widget build(BuildContext context) {
     return CompositedTransformTarget(
-      link: _overlayLayerLink,
+      link: _link,
       child: widget.child,
     );
   }
@@ -249,12 +262,14 @@ class OverlayWindowContainer extends StatefulWidget {
     this.direction = Axis.vertical,
     this.margin = _margin,
     this.alignment = 0,
+    this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
     this.borderRadius = _borderRadius,
     this.shadows = _shadows,
     this.barrierDismissible = true,
     this.barrierColor,
+    this.preferBelow = true,
   })  : assert(child != null),
         assert(builder != null),
         assert(offset != null),
@@ -266,6 +281,7 @@ class OverlayWindowContainer extends StatefulWidget {
         assert(borderRadius != null),
         assert(shadows != null),
         assert(barrierDismissible != null),
+        assert(preferBelow != null),
         super(key: key);
 
   /// 需要对齐的child
@@ -289,6 +305,9 @@ class OverlayWindowContainer extends StatefulWidget {
   /// 对齐方式，[-1,1]，0为居中，-1为最左边，1为最右边
   final double alignment;
 
+  /// 跟踪者
+  final LayerLink link;
+
   /// 隐藏回调
   final VoidCallback onDismiss;
 
@@ -306,6 +325,9 @@ class OverlayWindowContainer extends StatefulWidget {
 
   /// 遮罩颜色
   final Color barrierColor;
+
+  /// 优先显示在末尾
+  final bool preferBelow;
 
   @override
   OverlayWindowContainerState createState() => OverlayWindowContainerState();
@@ -346,11 +368,13 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
       offset: widget.offset,
       indicateSize: widget.indicateSize,
       alignment: widget.alignment,
+      link: widget.link,
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
+      preferBelow: widget.preferBelow,
       child: widget.child,
     );
   }
@@ -389,7 +413,7 @@ class OverlayWindow {
     Axis direction = Axis.vertical,
     double margin = 0,
     double alignment = 0,
-    LayerLink toolbarLayerLink,
+    LayerLink link,
     Rect bounds,
     bool immediately = false,
     Color backgroundColor = Colors.white,
@@ -429,9 +453,9 @@ class OverlayWindow {
             child: _route.buildPage(context, animation, secondaryAnimation),
           ),
         );
-        if (toolbarLayerLink != null) {
+        if (link != null) {
           child = CompositedTransformFollower(
-            link: toolbarLayerLink,
+            link: link,
             showWhenUnlinked: false,
             offset: -(compositedTransformTarget ?? currentAnchor).topLeft,
             child: child,
