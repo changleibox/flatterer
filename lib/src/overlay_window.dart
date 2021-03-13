@@ -243,10 +243,14 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   @override
   Widget build(BuildContext context) {
-    return CompositedTransformTarget(
-      link: _link,
-      child: widget.child,
-    );
+    var child = widget.child;
+    if (widget.link == null) {
+      child = CompositedTransformTarget(
+        link: _link,
+        child: child,
+      );
+    }
+    return child;
   }
 }
 
@@ -347,7 +351,7 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
     final bounds = localToGlobal(context);
     _overlayAnchorKey.currentState.show(
       anchor: anchor.shift(bounds.topLeft),
-      compositedTransformTarget: bounds,
+      compositedTransformTarget: widget.link == null ? bounds : null,
       bounds: bounds,
     );
   }
