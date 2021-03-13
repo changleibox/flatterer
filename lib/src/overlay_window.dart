@@ -465,6 +465,24 @@ class OverlayWindow {
             child: child,
           );
         }
+        if (barrierColor != null && barrierColor.alpha != 0) {
+          final color = animation.drive(
+            ColorTween(
+              begin: barrierColor.withOpacity(0.0),
+              end: barrierColor,
+            ).chain(CurveTween(curve: _route.barrierCurve)),
+          );
+          child = AnimatedBuilder(
+            animation: color,
+            builder: (context, child) {
+              return ColoredBox(
+                color: color.value,
+                child: child,
+              );
+            },
+            child: child,
+          );
+        }
         return child;
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {

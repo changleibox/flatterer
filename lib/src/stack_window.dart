@@ -377,9 +377,10 @@ class StackWindowState extends State<StackWindow> {
   @override
   Widget build(BuildContext context) {
     var child = _route?.buildPage(context, null, null);
-    if (widget.link != null && child != null) {
+    if (child != null && widget.link != null) {
       child = CompositedTransformFollower(
         link: widget.link,
+        showWhenUnlinked: false,
         offset: -widget.anchor.topLeft,
         child: child,
       );
@@ -389,6 +390,30 @@ class StackWindowState extends State<StackWindow> {
         dismiss: dismiss,
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) {
+            if (widget.barrierColor != null && widget.barrierColor.alpha != 0) {
+              final color = animation.drive(
+                ColorTween(
+                  begin: widget.barrierColor.withOpacity(0.0),
+                  end: widget.barrierColor,
+                ).chain(CurveTween(curve: Curves.ease)),
+              );
+              child = AnimatedBuilder(
+                animation: color,
+                builder: (context, child) {
+                  return ColoredBox(
+                    color: color.value,
+                    child: child,
+                  );
+                },
+                child: child,
+              );
+            }
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
           child: child,
         ),
       ),
