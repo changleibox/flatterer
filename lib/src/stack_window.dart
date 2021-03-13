@@ -4,6 +4,7 @@
 
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_window.dart';
+import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -118,6 +119,7 @@ class StackWindowContainer extends StatefulWidget {
 class StackWindowContainerState extends State<StackWindowContainer> with SingleTickerProviderStateMixin {
   Rect _anchor;
   AnimationController _controller;
+  GlobalKey _windowKey;
 
   @override
   void initState() {
@@ -137,7 +139,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (event is PointerUpEvent || event is PointerCancelEvent || event is PointerDownEvent) {
+    if ((event is PointerUpEvent || event is PointerCancelEvent) && localToGlobal(_windowKey?.currentContext)?.contains(event.localPosition) != true) {
       dismiss();
     }
   }
@@ -172,6 +174,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _showOrUpdate(Rect anchor) {
+    _windowKey = GlobalKey();
     _onPostFrame(() {
       setState(() {
         _anchor = anchor;
@@ -195,7 +198,12 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
         widget.child,
         StackWindow(
           anchor: _anchor,
-          builder: widget.builder,
+          builder: (context) {
+            return KeyedSubtree(
+              key: _windowKey,
+              child: widget.builder(context),
+            );
+          },
           offset: widget.offset,
           indicateSize: widget.indicateSize,
           direction: widget.direction,

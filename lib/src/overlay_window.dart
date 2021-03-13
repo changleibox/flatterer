@@ -116,6 +116,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   OverlayWindow _overlayWindow;
   Rect _anchor;
   AnimationController _controller;
+  GlobalKey _windowKey;
 
   @override
   void initState() {
@@ -136,7 +137,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (event is PointerUpEvent || event is PointerCancelEvent || event is PointerDownEvent) {
+    if ((event is PointerUpEvent || event is PointerCancelEvent) && localToGlobal(_windowKey?.currentContext)?.contains(event.localPosition) != true) {
       dismiss();
     }
   }
@@ -173,10 +174,16 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
+    _windowKey = GlobalKey();
     _overlayWindow?.dismiss(immediately: immediately);
     _overlayWindow = OverlayWindow(context);
     _overlayWindow.show(
-      builder: widget.builder,
+      builder: (context) {
+        return KeyedSubtree(
+          key: _windowKey,
+          child: widget.builder(context),
+        );
+      },
       anchor: anchor,
       compositedTransformTarget: compositedTransformTarget,
       offset: widget.offset,
