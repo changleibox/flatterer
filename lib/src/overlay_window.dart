@@ -135,6 +135,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   OverlayWindow _overlayWindow;
   Rect _anchor;
   AnimationController _controller;
+  VoidCallback _listener;
 
   @override
   void initState() {
@@ -190,14 +191,15 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
-    void _listener() {
+    void listener() {
       if (animation.isCompleted) {
-        animation.removeListener(_listener);
+        animation.removeListener(listener);
+        _listener = null;
       }
       _showOrUpdate(animation.value, compositedTransformTarget, immediately, bounds: bounds);
     }
 
-    animation.addListener(_listener);
+    animation.addListener(_listener = listener);
 
     if (immediately) {
       _controller.forward(from: _controller.lowerBound);
@@ -251,6 +253,11 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   /// 隐藏
   void dismiss() {
+    if (_listener != null) {
+      _controller.removeListener(_listener);
+      _listener = null;
+      _controller.value = _controller.upperBound;
+    }
     _overlayWindow?.dismiss();
     _overlayWindow = null;
     _anchor = null;
