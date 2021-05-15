@@ -122,7 +122,7 @@ class AnimatedOverlay {
         duration: transitionDuration,
         curve: curve,
       );
-      animateBack.whenCompleteOrCancel(_dispose);
+      animateBack.whenComplete(_dispose);
     }
 
     _onPostFrame(removeOverlay, false);
@@ -136,15 +136,8 @@ class AnimatedOverlay {
     _completer = null;
     _scheduler?.cancel();
     _scheduler = null;
-    void remove() {
-      _overlay?.remove();
-      _overlay = null;
-    }
-
-    if (_overlay == null) {
-      return;
-    }
-    _onPostFrame(remove);
+    _overlay?.remove();
+    _overlay = null;
   }
 
   void _onPostFrame(VoidCallback callback, [bool cancel = true]) {
