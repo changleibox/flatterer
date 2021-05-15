@@ -7,6 +7,7 @@ import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/geometry.dart';
+import 'package:flatterer/src/scheduler.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -112,6 +113,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   Rect _anchor;
   AnimationController _controller;
   VoidCallback _listener;
+  Scheduler _scheduler;
 
   @override
   void initState() {
@@ -136,6 +138,8 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   void dispose() {
     _overlayWindow?.dismiss(immediately: true);
     _controller?.dispose();
+    _scheduler?.cancel();
+    _scheduler = null;
     GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
     super.dispose();
   }
@@ -172,7 +176,9 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
         animation.removeListener(listener);
         _listener = null;
       }
-      _showOrUpdate(animation.value, compositedTransformTarget, immediately, bounds: bounds);
+
+      _anchor = animation.value;
+      _showOrUpdate(_anchor, compositedTransformTarget, immediately, bounds: bounds);
     }
 
     animation.addListener(_listener = listener);
@@ -182,11 +188,10 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     } else {
       _controller.value = _controller.upperBound;
     }
-
-    _anchor = anchor;
   }
 
   void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
+    _scheduler?.cancel();
     _overlayWindow?.dismiss(immediately: immediately);
     _overlayWindow = OverlayWindow(context);
     _overlayWindow.show(
@@ -239,9 +244,18 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _controller.value = _controller.upperBound;
       _whenCompleteOrCancel();
     }
-    _overlayWindow?.dismiss();
-    _overlayWindow = null;
+    _scheduler?.cancel();
+    _scheduler = null;
     _anchor = null;
+    _onPostFrame(() {
+      _overlayWindow?.dismiss();
+      _overlayWindow = null;
+    });
+  }
+
+  void _onPostFrame(VoidCallback callback) {
+    _scheduler?.cancel();
+    _scheduler = Scheduler.postFrame(callback);
   }
 
   @override
