@@ -115,6 +115,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   @override
   void initState() {
+    _overlayWindow = OverlayWindow(context);
     _controller = AnimationController(
       vsync: this,
       duration: fadeDuration,
@@ -135,6 +136,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   @override
   void dispose() {
     _overlayWindow?.dismiss(immediately: true);
+    _overlayWindow = null;
     _controller?.dispose();
     GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
     super.dispose();
@@ -177,6 +179,10 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _showOrUpdate(_anchor, compositedTransformTarget, immediately, bounds: bounds);
     }
 
+    if (_listener != null) {
+      animation.removeListener(_listener);
+      _listener = null;
+    }
     animation.addListener(_listener = listener);
 
     if (immediately) {
@@ -187,7 +193,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
-    _overlayWindow ??= OverlayWindow(context);
     _overlayWindow.show(
       builder: (context) {
         return MetaData(
@@ -229,7 +234,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
     _anchor = null;
     _overlayWindow?.dismiss();
-    _overlayWindow = null;
   }
 
   @override
