@@ -2,53 +2,29 @@
  * Copyright (c) 2020 CHANGLEI. All rights reserved.
  */
 
+import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/geometry.dart';
 import 'package:flatterer/src/indicate_border.dart';
 import 'package:flutter/material.dart';
 
-/// 指示器大小
-const Size _indicateSize = Size(30, 16);
-
-/// 四周的边距
-const double _margin = 20;
-
-/// 默认阴影
-const _shadows = <BoxShadow>[
-  BoxShadow(
-    color: Color.fromRGBO(0, 0, 0, 0.1),
-    spreadRadius: 10,
-    blurRadius: 30,
-    offset: Offset(0, 0),
-  ),
-];
-
-/// 边框
-const _side = BorderSide(
-  color: Color(0x1F000000),
-  width: 1,
-);
-
-/// 默认圆角
-const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
-
 /// Created by changlei on 2020/8/6.
 ///
 /// 追随锚点控件的动态弹窗
-class FlattererWindowRoute<T> extends PageRoute<T> {
+class FlattererRoute<T> extends PageRoute<T> {
   /// 追随锚点控件的动态弹窗
-  FlattererWindowRoute(
+  FlattererRoute(
     this.builder,
     this.anchor, {
     this.offset = 0,
     this.direction = Axis.vertical,
-    this.indicateSize = _indicateSize,
-    this.margin = _margin,
+    this.indicateSize = defaultIndicateSize,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.bounds,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -138,7 +114,7 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
     return Builder(
       builder: (context) {
         return CustomSingleChildLayout(
-          delegate: _FlattererWindowLayout(
+          delegate: _FlattererLayoutDelegate(
             anchor,
             offset + indicateSize.height,
             direction,
@@ -147,7 +123,7 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
             bounds: bounds,
             preferBelow: preferBelow,
           ),
-          child: _FlattererWindow(
+          child: _Flatterer(
             anchor: anchor,
             direction: direction,
             indicateSize: indicateSize,
@@ -179,14 +155,14 @@ class FlattererWindowRoute<T> extends PageRoute<T> {
   }
 
   @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
+  Duration get transitionDuration => fadeDuration;
 
   @override
   bool get maintainState => true;
 }
 
-class _FlattererWindow extends StatelessWidget {
-  const _FlattererWindow({
+class _Flatterer extends StatelessWidget {
+  const _Flatterer({
     Key key,
     @required this.child,
     @required this.anchor,
@@ -248,8 +224,8 @@ class _FlattererWindow extends StatelessWidget {
   }
 }
 
-class _FlattererWindowLayout extends SingleChildLayoutDelegate {
-  _FlattererWindowLayout(
+class _FlattererLayoutDelegate extends SingleChildLayoutDelegate {
+  _FlattererLayoutDelegate(
     this.anchor,
     this.offset,
     this.direction,
@@ -298,7 +274,7 @@ class _FlattererWindowLayout extends SingleChildLayoutDelegate {
   }
 
   @override
-  bool shouldRelayout(_FlattererWindowLayout oldDelegate) {
+  bool shouldRelayout(_FlattererLayoutDelegate oldDelegate) {
     return anchor != oldDelegate.anchor ||
         offset != oldDelegate.offset ||
         direction != oldDelegate.direction ||

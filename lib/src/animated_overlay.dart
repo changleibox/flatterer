@@ -4,6 +4,8 @@
 
 import 'dart:async';
 
+import 'package:flatterer/src/dimens.dart';
+import 'package:flatterer/src/scheduler.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
@@ -26,6 +28,7 @@ class AnimatedOverlay {
   AnimationController _controller;
   OverlayEntry _overlay;
   Completer<void> _completer;
+  Scheduler _scheduler;
 
   /// 是否正在显示
   bool get isShowing => _overlay != null;
@@ -43,7 +46,7 @@ class AnimatedOverlay {
   void insert({
     @required RoutePageBuilder builder,
     @required RouteTransitionsBuilder transitionBuilder,
-    Duration transitionDuration = const Duration(milliseconds: 300),
+    Duration transitionDuration = fadeDuration,
     Curve curve = Curves.linear,
     bool immediately = false,
   }) {
@@ -66,7 +69,9 @@ class AnimatedOverlay {
 
     final Widget child = AnimatedBuilder(
       animation: animation,
-      builder: (BuildContext context, Widget child) => transitionBuilder(context, animation, animation, child),
+      builder: (BuildContext context, Widget child) {
+        return transitionBuilder(context, animation, animation, child);
+      },
       child: builder(context, animation, animation),
     );
 
@@ -95,14 +100,14 @@ class AnimatedOverlay {
 
   /// 隐藏
   void remove({
-    Duration transitionDuration = const Duration(milliseconds: 300),
+    Duration transitionDuration = fadeDuration,
     Curve curve = Curves.linear,
     bool immediately = false,
   }) {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
-    if (_controller == null || immediately) {
+    if (immediately || _controller == null || _overlay == null) {
       _dispose();
       return;
     }
@@ -111,6 +116,8 @@ class AnimatedOverlay {
       duration: transitionDuration,
       curve: curve,
     );
+    _scheduler?.cancel();
+    _scheduler = null;
     final oldOverlay = _overlay;
     animateBack.whenCompleteOrCancel(() {
       if (oldOverlay != _overlay) {
@@ -122,23 +129,23 @@ class AnimatedOverlay {
 
   /// 销毁
   void _dispose() {
+    _controller?.dispose();
+    _controller = null;
+    _completer?.complete();
+    _completer = null;
+    _scheduler?.cancel();
+    _scheduler = null;
+    if (_overlay == null) {
+      return;
+    }
     _onPostFrame(() {
-      _controller?.dispose();
-      _controller = null;
       _overlay?.remove();
       _overlay = null;
-      _completer?.complete();
-      _completer = null;
     });
   }
 
   void _onPostFrame(VoidCallback callback) {
-    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
-        callback?.call();
-      });
-    } else {
-      callback?.call();
-    }
+    _scheduler?.cancel();
+    _scheduler = Scheduler.postFrame(callback);
   }
 }

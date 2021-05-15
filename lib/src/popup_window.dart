@@ -2,34 +2,10 @@
  * Copyright (c) 2020 CHANGLEI. All rights reserved.
  */
 
-import 'package:flatterer/src/flatterer_window_route.dart';
+import 'package:flatterer/src/dimens.dart';
+import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/material.dart';
-
-/// 三角形大小
-const Size _indicateSize = Size(30, 16);
-
-/// 四周的边距
-const double _margin = 20;
-
-/// 默认阴影
-const _shadows = <BoxShadow>[
-  BoxShadow(
-    color: Color.fromRGBO(0, 0, 0, 0.1),
-    spreadRadius: 10,
-    blurRadius: 30,
-    offset: Offset(0, 0),
-  ),
-];
-
-/// 边框
-const _side = BorderSide(
-  color: Color(0x1F000000),
-  width: 1,
-);
-
-/// 默认圆角
-const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
 
 /// Created by changlei on 2020/7/27.
 ///
@@ -42,13 +18,13 @@ class PopupWindowAnchor extends StatefulWidget {
     @required this.builder,
     this.offset = 0,
     this.direction = Axis.vertical,
-    this.indicateSize = _indicateSize,
-    this.margin = _margin,
+    this.indicateSize = defaultIndicateSize,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -164,14 +140,14 @@ Future<T> showPopupWindow<T>(
   Rect anchor,
   Rect bounds,
   double offset = 0,
-  Size indicateSize = _indicateSize,
+  Size indicateSize = defaultIndicateSize,
   Axis direction = Axis.vertical,
-  double margin = _margin,
+  double margin = defaultMargin,
   double alignment = 0,
   Color backgroundColor = Colors.white,
-  BorderRadiusGeometry borderRadius = _borderRadius,
-  List<BoxShadow> shadows = _shadows,
-  BorderSide side = _side,
+  BorderRadiusGeometry borderRadius = defaultBorderRadius,
+  List<BoxShadow> shadows = defaultShadows,
+  BorderSide side = defaultSide,
   bool useRootNavigator = true,
   bool barrierDismissible = true,
   Color barrierColor,
@@ -193,7 +169,7 @@ Future<T> showPopupWindow<T>(
   assert(preferBelow != null);
   final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
   return navigator.push<T>(
-    FlattererWindowRoute<T>(
+    FlattererRoute<T>(
       builder,
       anchor ?? localToGlobal(context),
       offset: offset,

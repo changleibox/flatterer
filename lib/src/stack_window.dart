@@ -2,47 +2,14 @@
  * Copyright (c) 2020 CHANGLEI. All rights reserved.
  */
 
+import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
-import 'package:flatterer/src/flatterer_window_route.dart';
+import 'package:flatterer/src/flatterer_route.dart';
+import 'package:flatterer/src/scheduler.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-
-/// 三角形大小
-const Size _indicateSize = Size(30, 16);
-
-/// 四周的边距
-const double _margin = 20;
-
-/// 默认阴影
-const _shadows = <BoxShadow>[
-  BoxShadow(
-    color: Color.fromRGBO(0, 0, 0, 0.1),
-    spreadRadius: 10,
-    blurRadius: 30,
-    offset: Offset(0, 0),
-  ),
-];
-
-/// 边框
-const _side = BorderSide(
-  color: Color(0x1F000000),
-  width: 1,
-);
-
-/// 默认圆角
-const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
-
-void _onPostFrame(VoidCallback callback) {
-  if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
-    SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
-      callback?.call();
-    });
-  } else {
-    callback?.call();
-  }
-}
 
 /// Created by changlei on 2020/8/14.
 ///
@@ -54,16 +21,16 @@ class StackWindowContainer extends StatefulWidget {
     @required this.child,
     @required this.builder,
     this.offset = 0,
-    this.indicateSize = _indicateSize,
+    this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
-    this.margin = _margin,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -142,12 +109,13 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   Rect _anchor;
   AnimationController _controller;
   VoidCallback _listener;
+  Scheduler _scheduler;
 
   @override
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: fadeDuration,
     );
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
     super.initState();
@@ -157,6 +125,8 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   void dispose() {
     _controller?.dispose();
     GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
+    _scheduler?.cancel();
+    _scheduler = null;
     super.dispose();
   }
 
@@ -226,6 +196,11 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     });
   }
 
+  void _onPostFrame(VoidCallback callback) {
+    _scheduler?.cancel();
+    _scheduler = Scheduler.postFrame(callback);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -271,16 +246,16 @@ class StackWindow extends StatefulWidget {
     @required this.anchor,
     @required this.builder,
     this.offset = 0,
-    this.indicateSize = _indicateSize,
+    this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
-    this.margin = _margin,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -386,7 +361,7 @@ class StackWindowState extends State<StackWindow> {
       _route = null;
       return;
     }
-    _route = FlattererWindowRoute<dynamic>(
+    _route = FlattererRoute<dynamic>(
       widget.builder,
       widget.anchor,
       offset: widget.offset,
@@ -420,7 +395,7 @@ class StackWindowState extends State<StackWindow> {
       child: DismissWindowScope(
         dismiss: dismiss,
         child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
+          duration: fadeDuration,
           transitionBuilder: (child, animation) {
             if (widget.barrierColor != null && widget.barrierColor.alpha != 0) {
               final color = animation.drive(

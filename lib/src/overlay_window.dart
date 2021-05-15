@@ -3,37 +3,13 @@
  */
 
 import 'package:flatterer/src/animated_overlay.dart';
+import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
-import 'package:flatterer/src/flatterer_window_route.dart';
+import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/geometry.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-/// 三角形大小
-const Size _indicateSize = Size(30, 16);
-
-/// 四周的边距
-const double _margin = 20;
-
-/// 默认阴影
-const _shadows = <BoxShadow>[
-  BoxShadow(
-    color: Color.fromRGBO(0, 0, 0, 0.1),
-    spreadRadius: 10,
-    blurRadius: 30,
-    offset: Offset(0, 0),
-  ),
-];
-
-/// 边框
-const _side = BorderSide(
-  color: Color(0x1F000000),
-  width: 1,
-);
-
-/// 默认圆角
-const BorderRadius _borderRadius = BorderRadius.all(Radius.circular(10));
 
 /// Created by changlei on 2020/8/5.
 ///
@@ -45,16 +21,16 @@ class OverlayWindowAnchor extends StatefulWidget {
     @required this.child,
     @required this.builder,
     this.offset = 0,
-    this.indicateSize = _indicateSize,
+    this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
-    this.margin = _margin,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -141,7 +117,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   void initState() {
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 300),
+      duration: fadeDuration,
     );
     _link = widget.link ?? LayerLink();
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
@@ -239,14 +215,14 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
     );
+    if (!_controller.isCompleted) {
+      return;
+    }
     _whenCompleteOrCancel();
   }
 
   void _whenCompleteOrCancel() {
-    if (!_controller.isCompleted) {
-      return;
-    }
-    _overlayWindow.whenCompleteOrCancel((overlayWindow) {
+    _overlayWindow?.whenCompleteOrCancel((overlayWindow) {
       if (_overlayWindow != null && _overlayWindow != overlayWindow) {
         return;
       }
@@ -289,16 +265,16 @@ class OverlayWindowContainer extends StatefulWidget {
     @required this.child,
     @required this.builder,
     this.offset = 0,
-    this.indicateSize = _indicateSize,
+    this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
-    this.margin = _margin,
+    this.margin = defaultMargin,
     this.alignment = 0,
     this.link,
     this.onDismiss,
     this.backgroundColor = Colors.white,
-    this.borderRadius = _borderRadius,
-    this.shadows = _shadows,
-    this.side = _side,
+    this.borderRadius = defaultBorderRadius,
+    this.shadows = defaultShadows,
+    this.side = defaultSide,
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
@@ -457,9 +433,9 @@ class OverlayWindow {
     Rect bounds,
     bool immediately = false,
     Color backgroundColor = Colors.white,
-    BorderRadiusGeometry borderRadius = _borderRadius,
-    List<BoxShadow> shadows = _shadows,
-    BorderSide side = _side,
+    BorderRadiusGeometry borderRadius = defaultBorderRadius,
+    List<BoxShadow> shadows = defaultShadows,
+    BorderSide side = defaultSide,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
     Color barrierColor,
@@ -480,7 +456,7 @@ class OverlayWindow {
     assert(preferBelow != null);
     assert(immediately != null);
     final currentAnchor = anchor ?? localToGlobal(context);
-    _route = FlattererWindowRoute<dynamic>(
+    _route = FlattererRoute<dynamic>(
       builder,
       currentAnchor,
       offset: offset,
