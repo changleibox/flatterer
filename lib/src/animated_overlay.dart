@@ -122,13 +122,7 @@ class AnimatedOverlay {
         duration: transitionDuration,
         curve: curve,
       );
-      final oldOverlay = _overlay;
-      animateBack.whenCompleteOrCancel(() {
-        if (oldOverlay != _overlay) {
-          return;
-        }
-        _dispose();
-      });
+      animateBack.whenCompleteOrCancel(_dispose);
     }
 
     _onPostFrame(removeOverlay, false);
