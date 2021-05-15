@@ -239,11 +239,15 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
     );
+    _whenCompleteOrCancel();
+  }
+
+  void _whenCompleteOrCancel() {
     if (!_controller.isCompleted) {
       return;
     }
     _overlayWindow.whenCompleteOrCancel((overlayWindow) {
-      if (_overlayWindow != overlayWindow) {
+      if (_overlayWindow != null && _overlayWindow != overlayWindow) {
         return;
       }
       widget.onDismiss?.call();
@@ -257,6 +261,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _controller.removeListener(_listener);
       _listener = null;
       _controller.value = _controller.upperBound;
+      _whenCompleteOrCancel();
     }
     _overlayWindow?.dismiss();
     _overlayWindow = null;
