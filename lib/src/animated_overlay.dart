@@ -59,7 +59,10 @@ class AnimatedOverlay {
       _dispose();
     }
 
-    final overlayState = Overlay.of(context, rootOverlay: rootOverlay);
+    final overlayState = Overlay.of(
+      context,
+      rootOverlay: rootOverlay,
+    );
     final toolbarController = AnimationController(
       vsync: overlayState,
       duration: transitionDuration,
@@ -75,7 +78,8 @@ class AnimatedOverlay {
       child: builder(context, animation, animation),
     );
 
-    void _insertOverlay() {
+    void insertOverlay() {
+      _overlay?.remove();
       _overlay = OverlayEntry(
         builder: (BuildContext context) => child,
       );
@@ -95,7 +99,7 @@ class AnimatedOverlay {
     _controller = toolbarController;
     _completer = Completer<void>();
 
-    _onPostFrame(_insertOverlay);
+    _onPostFrame(insertOverlay);
   }
 
   /// 隐藏
@@ -107,24 +111,26 @@ class AnimatedOverlay {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
-    if (immediately || _controller == null || _overlay == null) {
-      _dispose();
-      return;
-    }
-    final animateBack = _controller.animateBack(
-      _controller.lowerBound,
-      duration: transitionDuration,
-      curve: curve,
-    );
-    _scheduler?.cancel();
-    _scheduler = null;
-    final oldOverlay = _overlay;
-    animateBack.whenCompleteOrCancel(() {
-      if (oldOverlay != _overlay) {
+    void removeOverlay() {
+      if (immediately || _controller == null) {
+        _dispose();
         return;
       }
-      _dispose();
-    });
+      final animateBack = _controller.animateBack(
+        _controller.lowerBound,
+        duration: transitionDuration,
+        curve: curve,
+      );
+      final oldOverlay = _overlay;
+      animateBack.whenCompleteOrCancel(() {
+        if (oldOverlay != _overlay) {
+          return;
+        }
+        _dispose();
+      });
+    }
+
+    _onPostFrame(removeOverlay, false);
   }
 
   /// 销毁
@@ -135,17 +141,23 @@ class AnimatedOverlay {
     _completer = null;
     _scheduler?.cancel();
     _scheduler = null;
+    void remove() {
+      _overlay?.remove();
+      _overlay = null;
+    }
+
     if (_overlay == null) {
       return;
     }
-    _onPostFrame(() {
-      _overlay?.remove();
-      _overlay = null;
-    });
+    _onPostFrame(remove);
   }
 
-  void _onPostFrame(VoidCallback callback) {
-    _scheduler?.cancel();
+  void _onPostFrame(VoidCallback callback, [bool cancel = true]) {
+    assert(cancel != null);
+    assert(callback != null);
+    if (cancel) {
+      _scheduler?.cancel();
+    }
     _scheduler = Scheduler.postFrame(callback);
   }
 }
