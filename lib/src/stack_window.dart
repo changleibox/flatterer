@@ -160,7 +160,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
         animation.removeListener(listener);
         _listener = null;
       }
-      _showOrUpdate(animation.value);
+
+      _anchor = animation.value;
+      _showOrUpdate(_anchor);
     }
 
     animation.addListener(_listener = listener);
@@ -170,8 +172,6 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     } else {
       _controller.value = _controller.upperBound;
     }
-
-    _anchor = anchor;
   }
 
   void _showOrUpdate(Rect anchor) {

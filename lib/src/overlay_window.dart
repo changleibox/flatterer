@@ -187,8 +187,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
-    _overlayWindow?.dismiss(immediately: immediately);
-    _overlayWindow = OverlayWindow(context);
+    _overlayWindow ??= OverlayWindow(context);
     _overlayWindow.show(
       builder: (context) {
         return MetaData(
@@ -215,17 +214,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
     );
-    if (!_controller.isCompleted) {
-      return;
-    }
-    _whenCompleteOrCancel();
-  }
-
-  void _whenCompleteOrCancel() {
-    _overlayWindow?.whenCompleteOrCancel((overlayWindow) {
-      if (_overlayWindow != null && _overlayWindow != overlayWindow) {
-        return;
-      }
+    _overlayWindow.whenCompleteOrCancel((overlayWindow) {
       widget.onDismiss?.call();
       dismiss();
     });
@@ -237,7 +226,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _controller.removeListener(_listener);
       _listener = null;
       _controller.value = _controller.upperBound;
-      _whenCompleteOrCancel();
     }
     _anchor = null;
     _overlayWindow?.dismiss();

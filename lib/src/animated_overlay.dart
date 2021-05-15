@@ -56,6 +56,7 @@ class AnimatedOverlay {
     assert(curve != null);
     assert(immediately != null);
     if (_controller != null) {
+      _completer = null;
       _dispose();
     }
 
