@@ -165,6 +165,10 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       _showOrUpdate(_anchor);
     }
 
+    if (_listener != null) {
+      animation.removeListener(_listener);
+      _listener = null;
+    }
     animation.addListener(_listener = listener);
 
     if (immediately) {
