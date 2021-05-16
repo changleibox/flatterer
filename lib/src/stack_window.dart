@@ -180,6 +180,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   void _showOrUpdate(Rect anchor) {
     _onPostFrame(() {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _anchor = anchor;
       });
@@ -194,6 +197,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       _controller.value = _controller.upperBound;
     }
     _onPostFrame(() {
+      if (!mounted) {
+        return;
+      }
       setState(() {
         _anchor = null;
       });
