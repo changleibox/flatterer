@@ -221,6 +221,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     );
     _overlayWindow.whenCompleteOrCancel((overlayWindow) {
       widget.onDismiss?.call();
+      _anchor = null;
       dismiss();
     });
   }
@@ -232,7 +233,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _listener = null;
       _controller.value = _controller.upperBound;
     }
-    _anchor = null;
     _overlayWindow?.dismiss();
   }
 
