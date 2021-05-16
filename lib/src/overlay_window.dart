@@ -149,7 +149,10 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     final result = HitTestResult();
     WidgetsBinding.instance.hitTest(result, event.position);
     if (event is PointerUpEvent || event is PointerCancelEvent) {
-      if (result.path.map((e) => e.target).any((element) => element is RenderMetaData && element.metaData == this)) {
+      if (result.path.map((e) => e.target).any((element) {
+        final dynamic metaDate = element is RenderMetaData ? element.metaData : null;
+        return metaDate != null && (metaDate == this || metaDate == widget.child);
+      })) {
         return;
       }
       dismiss();
