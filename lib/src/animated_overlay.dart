@@ -56,38 +56,37 @@ class AnimatedOverlay {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
-    final toolbarController = AnimationController(
+    final controller = AnimationController(
       vsync: _overlayState,
       value: _controller?.value,
       duration: transitionDuration,
     );
 
-    final animation = toolbarController.view;
-
-    final Widget child = AnimatedBuilder(
-      animation: animation,
-      builder: (BuildContext context, Widget child) {
-        return transitionBuilder(context, animation, animation, child);
-      },
-      child: Builder(
-        builder: (context) {
-          return builder(context, animation, animation);
-        },
-      ),
-    );
-
     void insertOverlay() {
       _overlay?.remove();
+      // _controller == null说明已经removed，toolbarController已经释放，没必要再显示
+      if (_controller == null) {
+        return;
+      }
       _overlay = OverlayEntry(
-        builder: (BuildContext context) => child,
+        builder: (BuildContext context) {
+          final animation = controller.view;
+          return AnimatedBuilder(
+            animation: animation,
+            builder: (BuildContext context, Widget child) {
+              return transitionBuilder(context, animation, animation, child);
+            },
+            child: builder(context, animation, animation),
+          );
+        },
       );
       _overlayState.insert(_overlay);
 
       if (immediately) {
-        toolbarController.value = toolbarController.upperBound;
+        controller.value = controller.upperBound;
       } else {
-        toolbarController.animateTo(
-          toolbarController.upperBound,
+        controller.animateTo(
+          controller.upperBound,
           duration: transitionDuration,
           curve: curve,
         );
@@ -98,7 +97,7 @@ class AnimatedOverlay {
       _completer = null;
       _dispose();
     }
-    _controller = toolbarController;
+    _controller = controller;
     _completer = Completer<void>();
 
     _onPostFrame(insertOverlay);
