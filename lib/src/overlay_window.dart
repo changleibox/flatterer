@@ -116,6 +116,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   @override
   void initState() {
     _overlayWindow = OverlayWindow(context);
+    _overlayWindow.addListener(_onDismissed);
     _controller = AnimationController(
       vsync: this,
       duration: fadeDuration,
@@ -135,6 +136,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 
   @override
   void dispose() {
+    _overlayWindow?.removeListener(_onDismissed);
     _overlayWindow?.dismiss(immediately: true);
     _overlayWindow = null;
     _controller?.dispose();
@@ -219,11 +221,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
     );
-    _overlayWindow.whenCompleteOrCancel((overlayWindow) {
-      widget.onDismiss?.call();
-      _anchor = null;
-      dismiss();
-    });
   }
 
   /// 隐藏
@@ -234,6 +231,12 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       _controller.value = _controller.upperBound;
     }
     _overlayWindow?.dismiss();
+  }
+
+  void _onDismissed() {
+    widget.onDismiss?.call();
+    _anchor = null;
+    dismiss();
   }
 
   @override
@@ -402,9 +405,14 @@ class OverlayWindow {
   /// 是否正在显示
   bool get isShowing => _overlay.isShowing;
 
-  /// 显示完成，意思就是在remove了以后
-  void whenCompleteOrCancel(ValueChanged<OverlayWindow> callback) {
-    _overlay.whenCompleteOrCancel(() => callback(this));
+  /// 添加监听，在[dismiss]以后执行
+  void addListener(VoidCallback callback) {
+    _overlay.addListener(callback);
+  }
+
+  /// 删除监听
+  void removeListener(VoidCallback callback) {
+    _overlay.removeListener(callback);
   }
 
   /// 显示

@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/scheduler.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
@@ -26,6 +27,8 @@ class AnimatedOverlay {
 
   final OverlayState _overlayState;
 
+  final _listeners = ObserverList<VoidCallback>();
+
   AnimationController _controller;
   OverlayEntry _overlay;
   Completer<void> _completer;
@@ -34,13 +37,14 @@ class AnimatedOverlay {
   /// 是否正在显示
   bool get isShowing => _overlay != null;
 
-  /// 显示完成，意思就是在remove了以后
-  void whenCompleteOrCancel(VoidCallback callback) {
-    void thunk(dynamic value) {
-      callback();
-    }
+  /// 添加监听，在[remove]以后执行
+  void addListener(VoidCallback callback) {
+    _listeners.add(callback);
+  }
 
-    _completer?.future?.then<void>(thunk, onError: thunk);
+  /// 删除监听
+  void removeListener(VoidCallback callback) {
+    _listeners.remove(callback);
   }
 
   /// 显示
@@ -97,8 +101,18 @@ class AnimatedOverlay {
       duration: transitionDuration,
     );
     _completer = Completer<void>();
+    _completer.future.then<void>(_notifyListeners);
 
     _onPostFrame(insertOverlay);
+  }
+
+  void _notifyListeners([dynamic _]) {
+    final listeners = List.of(_listeners);
+    for (var listener in listeners) {
+      if (_listeners.contains(listener)) {
+        listener();
+      }
+    }
   }
 
   /// 隐藏
