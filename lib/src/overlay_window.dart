@@ -168,8 +168,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   /// [bounds]-边界，在屏幕中的位置
   /// [compositedTransformTarget]-compositedTransformTarget控件的坐标，默认为anchor的坐标
   void show({Rect anchor, Rect compositedTransformTarget, Rect bounds}) {
-    final immediately = _anchor != null && anchor != _anchor;
-
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -179,7 +177,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       }
 
       _anchor = animation.value;
-      _showOrUpdate(_anchor, compositedTransformTarget, immediately, bounds: bounds);
+      _showOrUpdate(_anchor, compositedTransformTarget, bounds: bounds);
     }
 
     if (_listener != null) {
@@ -188,14 +186,14 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
     animation.addListener(_listener = listener);
 
-    if (immediately) {
+    if (anchor != null && _anchor != null && anchor != _anchor) {
       _controller.forward(from: _controller.lowerBound);
     } else {
       _controller.value = _controller.upperBound;
     }
   }
 
-  void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, bool immediately, {Rect bounds}) {
+  void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, {Rect bounds}) {
     _overlayWindow.show(
       builder: (context) {
         return MetaData(
@@ -213,7 +211,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       alignment: widget.alignment,
       link: _link,
       bounds: bounds,
-      immediately: immediately,
       backgroundColor: widget.backgroundColor,
       borderRadius: widget.borderRadius,
       shadows: widget.shadows,

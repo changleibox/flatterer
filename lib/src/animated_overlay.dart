@@ -56,21 +56,18 @@ class AnimatedOverlay {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
-    final controller = AnimationController(
-      vsync: _overlayState,
-      value: _controller?.value,
-      duration: transitionDuration,
-    );
-
+    if (_isAnimatingStatus(AnimationStatus.forward) && !immediately) {
+      _overlay?.markNeedsBuild();
+      return;
+    }
     void insertOverlay() {
-      _overlay?.remove();
-      // _controller == null说明已经removed，toolbarController已经释放，没必要再显示
       if (_controller == null) {
         return;
       }
+      final animation = _controller.view;
+      _overlay?.remove();
       _overlay = OverlayEntry(
         builder: (BuildContext context) {
-          final animation = controller.view;
           return AnimatedBuilder(
             animation: animation,
             builder: (BuildContext context, Widget child) {
@@ -83,21 +80,22 @@ class AnimatedOverlay {
       _overlayState.insert(_overlay);
 
       if (immediately) {
-        controller.value = controller.upperBound;
+        _controller.value = _controller.upperBound;
       } else {
-        controller.animateTo(
-          controller.upperBound,
+        _controller.animateTo(
+          _controller.upperBound,
           duration: transitionDuration,
           curve: curve,
         );
       }
     }
 
-    if (_controller != null) {
-      _completer = null;
-      _dispose();
-    }
-    _controller = controller;
+    _controller?.dispose();
+    _controller = AnimationController(
+      vsync: _overlayState,
+      value: _controller?.value,
+      duration: transitionDuration,
+    );
     _completer = Completer<void>();
 
     _onPostFrame(insertOverlay);
@@ -112,23 +110,29 @@ class AnimatedOverlay {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
+    if (_isAnimatingStatus(AnimationStatus.reverse) && !immediately) {
+      return;
+    }
     void removeOverlay() {
-      if (immediately || _controller == null) {
-        _dispose();
+      if (_controller == null) {
         return;
       }
-      final animateBack = _controller.animateBack(
-        _controller.lowerBound,
-        duration: transitionDuration,
-        curve: curve,
-      );
-      animateBack.whenComplete(_dispose);
+      if (immediately) {
+        _dispose();
+      } else {
+        final animateBack = _controller.animateBack(
+          _controller.lowerBound,
+          duration: transitionDuration,
+          curve: curve,
+        );
+        animateBack.whenComplete(_dispose);
+      }
     }
 
     _onPostFrame(removeOverlay, false);
   }
 
-  /// 销毁
+  // 销毁
   void _dispose() {
     _controller?.dispose();
     _controller = null;
@@ -138,6 +142,11 @@ class AnimatedOverlay {
     _scheduler = null;
     _overlay?.remove();
     _overlay = null;
+  }
+
+  // 判断动画正在进行的状态
+  bool _isAnimatingStatus(AnimationStatus status) {
+    return _controller?.status == status && _controller?.isAnimating == true;
   }
 
   void _onPostFrame(VoidCallback callback, [bool cancel = true]) {

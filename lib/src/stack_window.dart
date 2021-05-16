@@ -154,8 +154,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   ///
   /// [anchor]-锚点，这里坐标是相对于父控件的坐标
   void show(Rect anchor) {
-    final immediately = _anchor != null && anchor != _anchor;
-
+    assert(anchor != null);
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -174,7 +173,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     }
     animation.addListener(_listener = listener);
 
-    if (immediately) {
+    if (_anchor != null && anchor != _anchor) {
       _controller.forward(from: _controller.lowerBound);
     } else {
       _controller.value = _controller.upperBound;
@@ -183,7 +182,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   void _showOrUpdate(Rect anchor) {
     _onPostFrame(() {
-      if (!mounted) {
+      if (!mounted || _anchor == anchor) {
         return;
       }
       setState(() {
@@ -200,7 +199,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       _controller.value = _controller.upperBound;
     }
     _onPostFrame(() {
-      if (!mounted) {
+      if (!mounted || _anchor == null) {
         return;
       }
       setState(() {
