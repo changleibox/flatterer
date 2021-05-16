@@ -15,15 +15,16 @@ import 'package:flutter/widgets.dart';
 class AnimatedOverlay {
   /// 有动画的overlay
   AnimatedOverlay(
-    this.context, {
-    this.rootOverlay = false,
-  }) : assert(rootOverlay != null);
+    BuildContext context, {
+    bool rootOverlay = false,
+  })  : assert(context != null),
+        assert(rootOverlay != null),
+        _overlayState = Overlay.of(
+          context,
+          rootOverlay: rootOverlay,
+        );
 
-  /// context
-  final BuildContext context;
-
-  /// 是否是根overlay
-  final bool rootOverlay;
+  final OverlayState _overlayState;
 
   AnimationController _controller;
   OverlayEntry _overlay;
@@ -55,17 +56,9 @@ class AnimatedOverlay {
     assert(transitionDuration != null);
     assert(curve != null);
     assert(immediately != null);
-    if (_controller != null) {
-      _completer = null;
-      _dispose();
-    }
-
-    final overlayState = Overlay.of(
-      context,
-      rootOverlay: rootOverlay,
-    );
     final toolbarController = AnimationController(
-      vsync: overlayState,
+      vsync: _overlayState,
+      value: _controller?.value,
       duration: transitionDuration,
     );
 
@@ -76,7 +69,11 @@ class AnimatedOverlay {
       builder: (BuildContext context, Widget child) {
         return transitionBuilder(context, animation, animation, child);
       },
-      child: builder(context, animation, animation),
+      child: Builder(
+        builder: (context) {
+          return builder(context, animation, animation);
+        },
+      ),
     );
 
     void insertOverlay() {
@@ -84,7 +81,7 @@ class AnimatedOverlay {
       _overlay = OverlayEntry(
         builder: (BuildContext context) => child,
       );
-      overlayState.insert(_overlay);
+      _overlayState.insert(_overlay);
 
       if (immediately) {
         toolbarController.value = toolbarController.upperBound;
@@ -97,6 +94,10 @@ class AnimatedOverlay {
       }
     }
 
+    if (_controller != null) {
+      _completer = null;
+      _dispose();
+    }
     _controller = toolbarController;
     _completer = Completer<void>();
 
