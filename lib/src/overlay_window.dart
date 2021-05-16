@@ -200,7 +200,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       builder: (context) {
         return MetaData(
           metaData: this,
-          behavior: HitTestBehavior.deferToChild,
+          behavior: HitTestBehavior.translucent,
           child: widget.builder(context),
         );
       },

@@ -224,7 +224,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
           builder: (context) {
             return MetaData(
               metaData: this,
-              behavior: HitTestBehavior.deferToChild,
+              behavior: HitTestBehavior.translucent,
               child: widget.builder(context),
             );
           },

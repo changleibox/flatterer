@@ -22,7 +22,7 @@ class PointerInterceptor extends StatelessWidget {
   Widget build(BuildContext context) {
     return MetaData(
       metaData: this,
-      behavior: HitTestBehavior.deferToChild,
+      behavior: HitTestBehavior.translucent,
       child: child,
     );
   }
