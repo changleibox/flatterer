@@ -6,6 +6,7 @@ import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/scheduler.dart';
+import 'package:flatterer/src/track_behavior.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -153,8 +154,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   /// 显示
   ///
   /// [anchor]-锚点，这里坐标是相对于父控件的坐标
-  void show(Rect anchor) {
+  void show(Rect anchor, {TrackBehavior behavior = TrackBehavior.lazy}) {
     assert(anchor != null);
+    assert(behavior != null);
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -163,8 +165,11 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
         _listener = null;
       }
 
-      _anchor = animation.value;
-      _showOrUpdate(_anchor);
+      final value = animation.value;
+      if (behavior == TrackBehavior.lazy) {
+        _anchor = value;
+      }
+      _showOrUpdate(value);
     }
 
     if (_listener != null) {
@@ -173,10 +178,13 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     }
     animation.addListener(_listener = listener);
 
-    if (_anchor != null && anchor != _anchor) {
+    if (_anchor != null && anchor != _anchor && behavior != TrackBehavior.none) {
       _controller.forward(from: _controller.lowerBound);
     } else {
       _controller.value = _controller.upperBound;
+    }
+    if (behavior == TrackBehavior.sharp) {
+      _anchor = anchor;
     }
   }
 

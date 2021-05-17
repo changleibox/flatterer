@@ -7,6 +7,7 @@ import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/geometry.dart';
+import 'package:flatterer/src/track_behavior.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -169,7 +170,13 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   /// [anchor]-锚点，在屏幕中的位置
   /// [bounds]-边界，在屏幕中的位置
   /// [compositedTransformTarget]-compositedTransformTarget控件的坐标，默认为anchor的坐标
-  void show({Rect anchor, Rect compositedTransformTarget, Rect bounds}) {
+  void show({
+    Rect anchor,
+    Rect compositedTransformTarget,
+    Rect bounds,
+    TrackBehavior behavior = TrackBehavior.lazy,
+  }) {
+    assert(behavior != null);
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -178,8 +185,11 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
         _listener = null;
       }
 
-      _anchor = animation.value;
-      _showOrUpdate(_anchor, compositedTransformTarget, bounds: bounds);
+      final value = animation.value;
+      if (behavior == TrackBehavior.lazy) {
+        _anchor = value;
+      }
+      _showOrUpdate(value, compositedTransformTarget, bounds: bounds);
     }
 
     if (_listener != null) {
@@ -188,10 +198,13 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
     animation.addListener(_listener = listener);
 
-    if (anchor != null && _anchor != null && anchor != _anchor) {
+    if (anchor != null && _anchor != null && anchor != _anchor && behavior != TrackBehavior.none) {
       _controller.forward(from: _controller.lowerBound);
     } else {
       _controller.value = _controller.upperBound;
+    }
+    if (behavior == TrackBehavior.sharp) {
+      _anchor = anchor;
     }
   }
 
@@ -353,12 +366,13 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
   /// 显示
   ///
   /// [anchor]-锚点，在父控件中的位置
-  void show(Rect anchor) {
+  void show(Rect anchor, {TrackBehavior behavior = TrackBehavior.lazy}) {
     final bounds = localToGlobal(context);
     _overlayAnchorKey.currentState.show(
       anchor: anchor.shift(bounds.topLeft),
       compositedTransformTarget: widget.link == null ? bounds : null,
       bounds: bounds,
+      behavior: behavior,
     );
   }
 

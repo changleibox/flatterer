@@ -12,4 +12,5 @@ export 'package:flatterer/src/overlay_window.dart';
 export 'package:flatterer/src/pointer_interceptor.dart';
 export 'package:flatterer/src/popup_window.dart';
 export 'package:flatterer/src/stack_window.dart';
+export 'package:flatterer/src/track_behavior.dart';
 export 'package:flatterer/src/widget_group.dart';
