@@ -5,6 +5,7 @@
 import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_route.dart';
+import 'package:flatterer/src/hit_test_detector.dart';
 import 'package:flatterer/src/scheduler.dart';
 import 'package:flatterer/src/track_behavior.dart';
 import 'package:flutter/gestures.dart';
@@ -107,6 +108,8 @@ class StackWindowContainer extends StatefulWidget {
 
 /// 浮动提示state
 class StackWindowContainerState extends State<StackWindowContainer> with SingleTickerProviderStateMixin {
+  final _hitTestDetector = HitTestDetector();
+
   Rect _anchor;
   AnimationController _controller;
   VoidCallback _listener;
@@ -118,34 +121,27 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       vsync: this,
       duration: fadeDuration,
     );
-    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
+    _hitTestDetector.setup(_onHitTest);
     super.initState();
   }
 
   @override
   void dispose() {
     _controller?.dispose();
-    GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
     _scheduler?.cancel();
     _scheduler = null;
+    _hitTestDetector.dispose();
     super.dispose();
   }
 
-  void _handlePointerEvent(PointerEvent event) {
+  void _onHitTest(HitTestResult result) {
     if (!isShowing || !widget.barrierDismissible) {
       return;
     }
-    final result = HitTestResult();
-    WidgetsBinding.instance.hitTest(result, event.position);
-    if (event is PointerUpEvent || event is PointerCancelEvent) {
-      if (result.path.map((e) => e.target).any((element) {
-        final dynamic metaDate = element is RenderMetaData ? element.metaData : null;
-        return metaDate != null && (metaDate == this || metaDate == widget.child);
-      })) {
-        return;
-      }
-      dismiss();
+    if (result.any((target, data) => data != null && (data == this || data == widget.child))) {
+      return;
     }
+    dismiss();
   }
 
   /// 是否正在显示

@@ -57,7 +57,7 @@ class AnimatedOverlay {
     OverlayEntry below,
     OverlayEntry above,
     ValueChanged<OverlayEntry> onInserted,
-  }) async {
+  }) {
     assert(builder != null);
     assert(transitionBuilder != null);
     assert(transitionDuration != null);

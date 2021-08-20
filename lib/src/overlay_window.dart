@@ -7,6 +7,7 @@ import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/dismiss_window_scope.dart';
 import 'package:flatterer/src/flatterer_route.dart';
 import 'package:flatterer/src/geometry.dart';
+import 'package:flatterer/src/hit_test_detector.dart';
 import 'package:flatterer/src/track_behavior.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -107,6 +108,8 @@ class OverlayWindowAnchor extends StatefulWidget {
 
 /// 浮动提示state
 class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTickerProviderStateMixin {
+  final _hitTestDetector = HitTestDetector();
+
   LayerLink _link;
 
   OverlayWindow _overlayWindow;
@@ -123,7 +126,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       duration: fadeDuration,
     );
     _link = widget.link ?? LayerLink();
-    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
+    _hitTestDetector.setup(_onHitTest);
     super.initState();
   }
 
@@ -141,25 +144,18 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     _overlayWindow?.dismiss(immediately: true);
     _overlayWindow = null;
     _controller?.dispose();
-    GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
+    _hitTestDetector.dispose();
     super.dispose();
   }
 
-  void _handlePointerEvent(PointerEvent event) {
+  void _onHitTest(HitTestResult result) {
     if (!isShowing || !widget.barrierDismissible) {
       return;
     }
-    final result = HitTestResult();
-    WidgetsBinding.instance.hitTest(result, event.position);
-    if (event is PointerUpEvent || event is PointerCancelEvent) {
-      if (result.path.map((e) => e.target).any((element) {
-        final dynamic metaDate = element is RenderMetaData ? element.metaData : null;
-        return metaDate != null && (metaDate == this || metaDate == widget.child);
-      })) {
-        return;
-      }
-      dismiss();
+    if (result.any((target, data) => data != null && (data == this || data == widget.child))) {
+      return;
     }
+    dismiss();
   }
 
   /// 是否正在显示
