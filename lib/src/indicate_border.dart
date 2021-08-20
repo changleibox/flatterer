@@ -161,6 +161,11 @@ class IndicateBorder extends OutlinedBorder {
 
   Path _getPath(Rect rect, {TextDirection textDirection, double delta = 0}) {
     assert(delta != null && delta >= 0);
+    final path = Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect).deflate(delta));
+    if (indicateSize.isEmpty) {
+      return path;
+    }
+
     final indicateWidth = indicateSize.width;
     final indicateHeight = indicateSize.height;
 
@@ -199,7 +204,7 @@ class IndicateBorder extends OutlinedBorder {
     return Path.combine(
       PathOperation.union,
       indicatePath.shift(rect.topLeft),
-      Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect).deflate(delta)),
+      path,
     );
   }
 
