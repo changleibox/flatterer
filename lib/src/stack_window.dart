@@ -114,6 +114,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   AnimationController _controller;
   VoidCallback _listener;
   Scheduler _scheduler;
+  bool _isTapDownOwn = false;
 
   @override
   void initState() {
@@ -121,7 +122,10 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       vsync: this,
       duration: fadeDuration,
     );
-    _hitTestDetector.setup(_onHitTest);
+    _hitTestDetector.setup(
+      onHitTest: _onHitTest,
+      onPointerEvent: _handlePointerEvent,
+    );
     super.initState();
   }
 
@@ -142,6 +146,14 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
       return;
     }
     dismiss();
+  }
+
+  void _handlePointerEvent(PointerEvent event) {
+    if (event is PointerDownEvent) {
+      _isTapDownOwn = event.result.any((target, data) => data == this);
+    } else if (event is PointerUpEvent && !_isTapDownOwn) {
+      dismiss();
+    }
   }
 
   /// 是否正在显示

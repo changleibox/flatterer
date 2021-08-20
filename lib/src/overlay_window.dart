@@ -133,6 +133,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   Rect _anchor;
   AnimationController _controller;
   VoidCallback _listener;
+  bool _isTapDownOwn = false;
 
   @override
   void initState() {
@@ -143,7 +144,10 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       duration: fadeDuration,
     );
     _link = widget.link ?? LayerLink();
-    _hitTestDetector.setup(_onHitTest);
+    _hitTestDetector.setup(
+      onHitTest: _onHitTest,
+      onPointerEvent: _handlePointerEvent,
+    );
     super.initState();
   }
 
@@ -173,6 +177,14 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       return;
     }
     dismiss();
+  }
+
+  void _handlePointerEvent(PointerEvent event) {
+    if (event is PointerDownEvent) {
+      _isTapDownOwn = event.result.any((target, data) => data == this);
+    } else if (event is PointerUpEvent && !_isTapDownOwn) {
+      dismiss();
+    }
   }
 
   /// 是否正在显示

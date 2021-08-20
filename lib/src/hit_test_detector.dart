@@ -18,22 +18,31 @@ class HitTestDetector {
   bool _waitUpEvent = false;
   Offset _tapDownPosition;
   Timer _tapTimer;
+  bool _isSetup = false;
 
   /// 命中测试
-  ValueChanged<HitTestResult> _hitTest;
+  ValueChanged<HitTestResult> _onHitTest;
+
+  /// 回调每个事件，最先执行
+  ValueChanged<PointerEvent> _onPointerEvent;
 
   /// 初始化
-  void setup(ValueChanged<HitTestResult> hitTest) {
-    _hitTest = hitTest;
+  void setup({@required ValueChanged<HitTestResult> onHitTest, ValueChanged<PointerEvent> onPointerEvent}) {
+    assert(!_isSetup);
+    _isSetup = true;
+    _onHitTest = onHitTest;
+    _onPointerEvent = onPointerEvent;
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
   }
 
   /// 释放
   void dispose() {
+    assert(_isSetup);
     GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
   }
 
   void _handlePointerEvent(PointerEvent event) {
+    _onPointerEvent?.call(event);
     if (event is PointerDownEvent) {
       _tapDownPosition = event.position;
       _waitUpEvent = true;
@@ -61,9 +70,7 @@ class HitTestDetector {
     } else {
       return;
     }
-    final result = HitTestResult();
-    WidgetsBinding.instance.hitTest(result, event.position);
-    _hitTest?.call(result);
+    _onHitTest?.call(event.result);
   }
 
   // 是否抽出点击范围
@@ -75,7 +82,7 @@ class HitTestDetector {
   }
 }
 
-/// hitTest扩展
+/// 扩展[HitTestResult]
 extension HitTestResultTarget on HitTestResult {
   /// 遍历访问target
   bool any(bool Function(HitTestTarget target, Object data) visitor) {
@@ -89,5 +96,15 @@ extension HitTestResultTarget on HitTestResult {
     return path.map((e) => e.target).every((element) {
       return visitor(element, element is RenderMetaData ? element.metaData : null);
     });
+  }
+}
+
+/// 扩展[PointerEvent]
+extension PointerEventHitTestResult on PointerEvent {
+  /// 返回[HitTestResult]
+  HitTestResult get result {
+    final result = HitTestResult();
+    WidgetsBinding.instance.hitTest(result, position);
+    return result;
   }
 }
