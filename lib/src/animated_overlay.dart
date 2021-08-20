@@ -54,7 +54,10 @@ class AnimatedOverlay {
     Duration transitionDuration = fadeDuration,
     Curve curve = Curves.linear,
     bool immediately = false,
-  }) {
+    OverlayEntry below,
+    OverlayEntry above,
+    ValueChanged<OverlayEntry> onInserted,
+  }) async {
     assert(builder != null);
     assert(transitionBuilder != null);
     assert(transitionDuration != null);
@@ -81,7 +84,12 @@ class AnimatedOverlay {
           );
         },
       );
-      _overlayState.insert(_overlay);
+      _overlayState.insert(
+        _overlay,
+        below: below,
+        above: above,
+      );
+      onInserted?.call(_overlay);
 
       if (immediately) {
         _controller.value = _controller.upperBound;

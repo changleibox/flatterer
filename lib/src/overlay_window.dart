@@ -454,6 +454,9 @@ class OverlayWindow {
     bool barrierDismissible = true,
     Color barrierColor,
     bool preferBelow = true,
+    OverlayEntry below,
+    OverlayEntry above,
+    ValueChanged<OverlayEntry> onInserted,
   }) {
     assert(builder != null);
     assert(offset != null);
@@ -532,6 +535,9 @@ class OverlayWindow {
       transitionDuration: _route.transitionDuration,
       curve: _route.barrierCurve,
       immediately: immediately,
+      below: below,
+      above: above,
+      onInserted: onInserted,
     );
   }
 
