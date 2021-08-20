@@ -133,7 +133,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   Rect _anchor;
   AnimationController _controller;
   VoidCallback _listener;
-  bool _isTapDownOwn = false;
+  bool _isTapDownHit = false;
 
   @override
   void initState() {
@@ -145,7 +145,6 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     );
     _link = widget.link ?? LayerLink();
     _hitTestDetector.setup(
-      onHitTest: _onHitTest,
       onPointerEvent: _handlePointerEvent,
     );
     super.initState();
@@ -173,23 +172,13 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     return data != null && (data == this || data == widget.child);
   }
 
-  void _onHitTest(HitTestResult result) {
-    if (!isShowing || !widget.barrierDismissible) {
-      return;
-    }
-    if (result.any(_visitAny)) {
-      return;
-    }
-    dismiss();
-  }
-
   void _handlePointerEvent(PointerEvent event) {
     if (!isShowing || !widget.barrierDismissible) {
       return;
     }
     if (event is PointerDownEvent) {
-      _isTapDownOwn = event.result.any(_visitAny);
-    } else if (event is PointerUpEvent && !_isTapDownOwn) {
+      _isTapDownHit = event.result.any(_visitAny);
+    } else if (event is PointerUpEvent && !_isTapDownHit) {
       dismiss();
     }
   }

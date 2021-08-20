@@ -8,8 +8,8 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 
-const _maxIntervalForClick = kLongPressTimeout;
-const _maxDistanceForClick = 100.0;
+const _maxInterval = kLongPressTimeout;
+const _maxDistance = 100.0;
 
 /// Created by changlei on 2021/8/20.
 ///
@@ -21,16 +21,16 @@ class HitTestDetector {
   bool _isSetup = false;
 
   /// 命中测试
-  ValueChanged<HitTestResult> _onHitTest;
+  ValueChanged<HitTestResult> _onTapHitTest;
 
   /// 回调每个事件，最先执行
   ValueChanged<PointerEvent> _onPointerEvent;
 
   /// 初始化
-  void setup({@required ValueChanged<HitTestResult> onHitTest, ValueChanged<PointerEvent> onPointerEvent}) {
+  void setup({ValueChanged<HitTestResult> onTapHitTest, ValueChanged<PointerEvent> onPointerEvent}) {
     assert(!_isSetup);
     _isSetup = true;
-    _onHitTest = onHitTest;
+    _onTapHitTest = onTapHitTest;
     _onPointerEvent = onPointerEvent;
     GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
   }
@@ -47,7 +47,7 @@ class HitTestDetector {
       _tapDownPosition = event.position;
       _waitUpEvent = true;
       _tapTimer?.cancel();
-      _tapTimer = Timer(_maxIntervalForClick, () {
+      _tapTimer = Timer(_maxInterval, () {
         _waitUpEvent = false;
       });
       return;
@@ -70,11 +70,11 @@ class HitTestDetector {
     } else {
       return;
     }
-    _onHitTest?.call(event.result);
+    _onTapHitTest?.call(event.result);
   }
 
   // 是否抽出点击范围
-  bool _isOverflowClickDistance(Offset a, Offset b, [double distance = _maxDistanceForClick]) {
+  bool _isOverflowClickDistance(Offset a, Offset b, [double distance = _maxDistance]) {
     if (a == null || b == null) {
       return true;
     }
