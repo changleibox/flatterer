@@ -186,7 +186,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   void _showOrUpdate(Rect anchor) {
     _onPostFrame(() {
-      if (!mounted || _anchor == anchor) {
+      if (!mounted) {
         return;
       }
       setState(() {
