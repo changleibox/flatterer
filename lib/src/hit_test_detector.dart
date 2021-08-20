@@ -68,6 +68,9 @@ class HitTestDetector {
 
   // 是否抽出点击范围
   bool _isOverflowClickDistance(Offset a, Offset b, [double distance = _maxDistanceForClick]) {
+    if (a == null || b == null) {
+      return true;
+    }
     return (a.dx - b.dx).abs() > distance || (a.dy - b.dy).abs() > distance;
   }
 }
