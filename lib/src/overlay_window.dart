@@ -178,7 +178,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
     if (event is PointerDownEvent) {
       _isTapDownHit = event.result.any(_visitAny);
-    } else if (event is PointerUpEvent && !_isTapDownHit) {
+    } else if (event is PointerUpEvent && !_isTapDownHit && !event.result.any(_visitAny)) {
       _isTapDownHit = false;
       dismiss();
     }
