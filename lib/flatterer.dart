@@ -6,6 +6,7 @@ export 'package:flatterer/src/drop_down_action.dart';
 export 'package:flatterer/src/drop_down_menu.dart';
 export 'package:flatterer/src/flatterer_route.dart';
 export 'package:flatterer/src/geometry.dart';
+export 'package:flatterer/src/hit_test_detector.dart';
 export 'package:flatterer/src/icon_label.dart';
 export 'package:flatterer/src/indicate_border.dart';
 export 'package:flatterer/src/overlay_window.dart';
