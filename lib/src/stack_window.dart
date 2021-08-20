@@ -138,19 +138,26 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     super.dispose();
   }
 
+  bool _visitAny(HitTestTarget target, Object data) {
+    return data != null && (data == this || data == widget.child);
+  }
+
   void _onHitTest(HitTestResult result) {
     if (!isShowing || !widget.barrierDismissible) {
       return;
     }
-    if (result.any((target, data) => data != null && (data == this || data == widget.child))) {
+    if (result.any(_visitAny)) {
       return;
     }
     dismiss();
   }
 
   void _handlePointerEvent(PointerEvent event) {
+    if (!isShowing || !widget.barrierDismissible) {
+      return;
+    }
     if (event is PointerDownEvent) {
-      _isTapDownOwn = event.result.any((target, data) => data == this);
+      _isTapDownOwn = event.result.any(_visitAny);
     } else if (event is PointerUpEvent && !_isTapDownOwn) {
       dismiss();
     }
