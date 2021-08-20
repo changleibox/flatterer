@@ -36,6 +36,10 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
+    this.useRootNavigator = true,
+    this.below,
+    this.above,
+    this.onInserted,
   })  : assert(child != null),
         assert(builder != null),
         assert(offset != null),
@@ -49,6 +53,7 @@ class OverlayWindowAnchor extends StatefulWidget {
         assert(side != null),
         assert(barrierDismissible != null),
         assert(preferBelow != null),
+        assert(useRootNavigator != null),
         super(key: key);
 
   /// 需要对齐的child
@@ -101,6 +106,18 @@ class OverlayWindowAnchor extends StatefulWidget {
 
   /// 优先显示在末尾
   final bool preferBelow;
+
+  /// 使用跟路由
+  final bool useRootNavigator;
+
+  /// 显示在below
+  final OverlayEntry below;
+
+  /// 显示在above
+  final OverlayEntry above;
+
+  /// 当窗口插入的时候
+  final ValueChanged<OverlayEntry> onInserted;
 
   @override
   OverlayWindowAnchorState createState() => OverlayWindowAnchorState();
@@ -229,6 +246,10 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
+      useRootNavigator: widget.useRootNavigator,
+      below: widget.below,
+      above: widget.above,
+      onInserted: widget.onInserted,
     );
   }
 
