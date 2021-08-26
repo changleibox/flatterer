@@ -10,18 +10,16 @@ import 'package:flutter/material.dart';
 class DismissWindowScope extends InheritedWidget {
   /// dimiss弹出框
   const DismissWindowScope({
-    Key key,
-    @required this.dismiss,
-    @required Widget child,
-  })  : assert(dismiss != null),
-        assert(child != null),
-        super(key: key, child: child);
+    Key? key,
+    required this.dismiss,
+    required Widget child,
+  })  : super(key: key, child: child);
 
   /// 关闭
   final VoidCallback dismiss;
 
   /// 获取锚点state
-  static DismissWindowScope of(BuildContext context) {
+  static DismissWindowScope? of(BuildContext context) {
     return context.dependOnInheritedWidgetOfExactType<DismissWindowScope>();
   }
 

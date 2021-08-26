@@ -2,11 +2,8 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-// @dart = 2.8
-
 import 'dart:math' as math;
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
@@ -42,16 +39,15 @@ import 'package:flutter/widgets.dart';
 ///
 /// The arguments must not be null.
 Offset positionDependentBoxPopupWindow({
-  @required Size size,
-  @required Size childSize,
-  @required Offset target,
-  @required bool preferBelow,
+  required Size size,
+  required Size childSize,
+  required Offset target,
+  required bool preferBelow,
   double offset = 0.0,
   double margin = 10.0,
   Axis direction = Axis.vertical,
   double alignment = 0,
 }) {
-  assert(direction != null);
   if (direction == Axis.vertical) {
     return _positionDependentBoxVertical(
       size: size,
@@ -77,21 +73,15 @@ Offset positionDependentBoxPopupWindow({
 
 /// 计算垂直位置上的坐标
 Offset _positionDependentBoxVertical({
-  @required Size size,
-  @required Size childSize,
-  @required Offset target,
-  @required bool preferBelow,
+  required Size size,
+  required Size childSize,
+  required Offset target,
+  required bool preferBelow,
   double verticalOffset = 0.0,
   double margin = 10.0,
   double alignment = 0,
 }) {
-  assert(size != null);
-  assert(childSize != null);
-  assert(target != null);
-  assert(verticalOffset != null);
-  assert(preferBelow != null);
-  assert(margin != null);
-  assert(alignment != null && alignment.abs() <= 1);
+  assert(alignment.abs() <= 1);
   // VERTICAL DIRECTION
   final fitsBelow = target.dy + verticalOffset + childSize.height <= size.height - margin;
   final fitsAbove = target.dy - verticalOffset - childSize.height >= margin;
@@ -108,7 +98,7 @@ Offset _positionDependentBoxVertical({
     x = (size.width - childSize.width) / 2.0;
   } else {
     final adjustOffset = _adjustOffset(childSize.width, alignment);
-    final normalizedTargetX = (target.dx.clamp(margin, size.width - margin) as double) - adjustOffset;
+    final normalizedTargetX = (target.dx.clamp(margin, size.width - margin)) - adjustOffset;
     final edge = margin + childSize.width / 2.0;
     if (normalizedTargetX < edge) {
       x = margin;
@@ -123,21 +113,15 @@ Offset _positionDependentBoxVertical({
 
 /// 计算水平位置上的坐标
 Offset _positionDependentBoxHorizontal({
-  @required Size size,
-  @required Size childSize,
-  @required Offset target,
-  @required bool preferBelow,
+  required Size size,
+  required Size childSize,
+  required Offset target,
+  required bool preferBelow,
   double horizontalOffset = 0.0,
   double margin = 10.0,
   double alignment = 0,
 }) {
-  assert(size != null);
-  assert(childSize != null);
-  assert(target != null);
-  assert(horizontalOffset != null);
-  assert(preferBelow != null);
-  assert(margin != null);
-  assert(alignment != null && alignment.abs() <= 1);
+  assert(alignment.abs() <= 1);
   // HORIZONTAL DIRECTION
   final fitsBelow = target.dx + horizontalOffset + childSize.width <= size.width - margin;
   final fitsAbove = target.dx - horizontalOffset - childSize.width >= margin;
@@ -154,7 +138,7 @@ Offset _positionDependentBoxHorizontal({
     y = (size.height - childSize.height) / 2.0;
   } else {
     final adjustOffset = _adjustOffset(childSize.height, alignment);
-    final normalizedTargetY = (target.dy.clamp(margin, size.height - margin) as double) - adjustOffset;
+    final normalizedTargetY = (target.dy.clamp(margin, size.height - margin)) - adjustOffset;
     final edge = margin + childSize.height / 2.0;
     if (normalizedTargetY < edge) {
       y = margin;
@@ -179,7 +163,7 @@ double _adjustOffset(double offset, double alignment) => alignment * offset / 2.
 /// This method is implemented in terms of [getTransformTo]. If the transform
 /// matrix puts the given `point` on the line at infinity (for instance, when
 /// the transform matrix is the zero matrix), this method returns (NaN, NaN).
-Rect localToGlobal(BuildContext context, {Offset point, RenderObject ancestor}) {
+Rect localToGlobal(BuildContext? context, {Offset? point, RenderObject? ancestor}) {
   if (context == null) {
     return Rect.zero;
   }
@@ -205,7 +189,7 @@ Rect localToGlobal(BuildContext context, {Offset point, RenderObject ancestor}) 
 /// object) instead of from the global coordinate system.
 ///
 /// This method is implemented in terms of [getTransformTo].
-Rect globalToLocal(BuildContext context, {Offset point, RenderObject ancestor}) {
+Rect globalToLocal(BuildContext? context, {Offset? point, RenderObject? ancestor}) {
   if (context == null) {
     return Rect.zero;
   }
@@ -218,7 +202,7 @@ Rect globalToLocal(BuildContext context, {Offset point, RenderObject ancestor}) 
 }
 
 /// 计算控件在离它最近的边界的位置
-Rect localToRepaintBoundary(BuildContext context, {Offset point}) {
+Rect localToRepaintBoundary(BuildContext? context, {Offset? point}) {
   if (context == null) {
     return Rect.zero;
   }

@@ -13,26 +13,20 @@ import 'package:flutter/cupertino.dart';
 class WidgetGroup extends StatelessWidget {
   /// 构造函数
   WidgetGroup({
-    Key key,
+    Key? key,
     this.alignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.max,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
-    @required List<Widget> children,
-    Widget divider,
-    Axis direction = Axis.horizontal,
-  })  : direction = direction ?? Axis.horizontal,
-        assert(direction != null),
-        assert(alignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
-        assert(verticalDirection != null),
-        assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
-        childrenDelegate = divider == null || children == null
+    required List<Widget> children,
+    Widget? divider,
+    this.direction = Axis.horizontal,
+  })  : assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
+        childrenDelegate = divider == null
             ? ChildListDelegate(
-                children ?? <Widget>[],
+                children,
                 addAutomaticKeepAlives: false,
                 addRepaintBoundaries: false,
                 addSemanticIndexes: false,
@@ -60,19 +54,19 @@ class WidgetGroup extends StatelessWidget {
 
   /// 创建一个固定分隔距离
   factory WidgetGroup.spacing({
-    Key key,
+    Key? key,
     MainAxisAlignment alignment = MainAxisAlignment.start,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
     MainAxisSize mainAxisSize = MainAxisSize.max,
-    TextDirection textDirection,
+    TextDirection? textDirection,
     VerticalDirection verticalDirection = VerticalDirection.down,
-    TextBaseline textBaseline,
-    @required List<Widget> children,
+    TextBaseline? textBaseline,
+    required List<Widget> children,
     double spacing = 0,
     Axis direction = Axis.horizontal,
   }) {
-    assert(spacing == null || spacing >= 0);
-    direction = direction ?? Axis.horizontal;
+    assert(spacing >= 0);
+    direction = direction;
     return WidgetGroup(
       key: key,
       alignment: alignment,
@@ -95,24 +89,18 @@ class WidgetGroup extends StatelessWidget {
 
   /// builder
   WidgetGroup.builder({
-    Key key,
+    Key? key,
     this.alignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.max,
-    @required IndexedWidgetBuilder itemBuilder,
-    @required int itemCount,
+    required IndexedWidgetBuilder itemBuilder,
+    required int itemCount,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
-    Axis direction = Axis.horizontal,
-  })  : direction = direction ?? Axis.horizontal,
-        assert(direction != null),
-        assert(alignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
-        assert(verticalDirection != null),
-        assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
-        assert(itemCount == null || itemCount >= 0),
+    this.direction = Axis.horizontal,
+  })  : assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
+        assert(itemCount >= 0),
         childrenDelegate = ChildBuilderDelegate(
           itemBuilder,
           childCount: itemCount,
@@ -124,25 +112,19 @@ class WidgetGroup extends StatelessWidget {
 
   /// separated
   WidgetGroup.separated({
-    Key key,
+    Key? key,
     this.alignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.max,
-    @required IndexedWidgetBuilder itemBuilder,
-    @required IndexedWidgetBuilder separatorBuilder,
-    @required int itemCount,
+    required IndexedWidgetBuilder itemBuilder,
+    required IndexedWidgetBuilder separatorBuilder,
+    required int itemCount,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
-    Axis direction = Axis.horizontal,
-  })  : direction = direction ?? Axis.horizontal,
-        assert(direction != null),
-        assert(alignment != null),
-        assert(mainAxisSize != null),
-        assert(crossAxisAlignment != null),
-        assert(verticalDirection != null),
-        assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
-        assert(itemCount == null || itemCount >= 0),
+    this.direction = Axis.horizontal,
+  })  : assert(crossAxisAlignment != CrossAxisAlignment.baseline || textBaseline != null),
+        assert(itemCount >= 0),
         childrenDelegate = ChildBuilderDelegate(
           (BuildContext context, int index) {
             final itemIndex = index ~/ 2;
@@ -151,12 +133,6 @@ class WidgetGroup extends StatelessWidget {
               widget = itemBuilder(context, itemIndex);
             } else {
               widget = separatorBuilder(context, itemIndex);
-              assert(() {
-                if (widget == null) {
-                  throw FlutterError('separatorBuilder cannot return null.');
-                }
-                return true;
-              }());
             }
             return widget;
           },
@@ -172,19 +148,16 @@ class WidgetGroup extends StatelessWidget {
 
   /// 自定义，使用childrenDelegate
   const WidgetGroup.custom({
-    Key key,
+    Key? key,
     this.alignment = MainAxisAlignment.start,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.max,
-    @required this.childrenDelegate,
+    required this.childrenDelegate,
     this.textDirection,
     this.verticalDirection = VerticalDirection.down,
     this.textBaseline,
-    Axis direction = Axis.horizontal,
-  })  : direction = direction ?? Axis.horizontal,
-        assert(direction != null),
-        assert(childrenDelegate != null),
-        super(key: key);
+    this.direction = Axis.horizontal,
+  }) : super(key: key);
 
   /// 主轴对齐方式
   final MainAxisAlignment alignment;
@@ -196,14 +169,14 @@ class WidgetGroup extends StatelessWidget {
   final CrossAxisAlignment crossAxisAlignment;
 
   /// text direction
-  final TextDirection textDirection;
+  final TextDirection? textDirection;
 
   /// Determines the order to lay children out vertically and how to interpret
   /// `start` and `end` in the vertical direction.
   final VerticalDirection verticalDirection;
 
   /// baseline
-  final TextBaseline textBaseline;
+  final TextBaseline? textBaseline;
 
   /// 方向，垂直或水平
   final Axis direction;
@@ -214,36 +187,32 @@ class WidgetGroup extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final childCount = childrenDelegate.estimatedChildCount;
-    final children = List<Widget>.generate(childCount, (int index) {
+    final children = List<Widget>.generate(childCount ?? 0, (int index) {
       return childrenDelegate.build(context, index);
     });
 
     switch (direction) {
       case Axis.horizontal:
         return Row(
-          mainAxisAlignment: alignment ?? MainAxisAlignment.start,
-          mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+          mainAxisAlignment: alignment,
+          mainAxisSize: mainAxisSize,
+          crossAxisAlignment: crossAxisAlignment,
           textDirection: textDirection,
           verticalDirection: verticalDirection,
           textBaseline: textBaseline,
           children: children,
         );
-        break;
       case Axis.vertical:
         return Column(
-          mainAxisAlignment: alignment ?? MainAxisAlignment.start,
-          mainAxisSize: mainAxisSize ?? MainAxisSize.max,
-          crossAxisAlignment: crossAxisAlignment ?? CrossAxisAlignment.center,
+          mainAxisAlignment: alignment,
+          mainAxisSize: mainAxisSize,
+          crossAxisAlignment: crossAxisAlignment,
           textDirection: textDirection,
           verticalDirection: verticalDirection,
           textBaseline: textBaseline,
           children: children,
         );
-        break;
     }
-    assert(false);
-    return null;
   }
 
   // Helper method to compute the actual child count for the separated constructor.

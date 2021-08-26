@@ -11,25 +11,22 @@ import 'package:flutter/material.dart';
 class DropDownAction extends StatelessWidget {
   /// 下拉列表按钮
   const DropDownAction({
-    Key key,
+    Key? key,
     this.icon,
     this.endIcon,
-    @required this.label,
+    required this.label,
     this.isAutoPop = true,
     this.minSize = 40,
     this.padding = EdgeInsets.zero,
     this.spacing = 17,
     this.onPressed,
-  })  : assert(label != null),
-        assert(isAutoPop != null),
-        assert(spacing != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 图标
-  final Widget icon;
+  final Widget? icon;
 
   /// 末尾图标图标
-  final Widget endIcon;
+  final Widget? endIcon;
 
   /// 文本
   final Widget label;
@@ -47,11 +44,37 @@ class DropDownAction extends StatelessWidget {
   final double spacing;
 
   /// 点击事件
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   @override
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
+    var leftIcon = icon;
+    if (leftIcon != null) {
+      leftIcon = IconTheme(
+        data: IconThemeData(
+          color: textTheme.bodyText1?.color,
+          size: 15,
+        ),
+        child: leftIcon,
+      );
+    }
+    var rightIcon = endIcon;
+    if (rightIcon != null) {
+      rightIcon = IconTheme(
+        data: IconThemeData(
+          color: textTheme.bodyText1?.color,
+          size: 15,
+        ),
+        child: rightIcon,
+      );
+    }
+    var label = this.label;
+    if (leftIcon != null || rightIcon != null) {
+      label = Expanded(
+        child: label,
+      );
+    }
     return SupportIconButton(
       onPressed: () {
         if (isAutoPop) {
@@ -62,29 +85,9 @@ class DropDownAction extends StatelessWidget {
       padding: padding,
       spacing: spacing,
       minSize: minSize,
-      leftIcon: icon == null
-          ? null
-          : IconTheme(
-              data: IconThemeData(
-                color: textTheme.bodyText1.color,
-                size: 15,
-              ),
-              child: icon,
-            ),
-      rightIcon: endIcon == null
-          ? null
-          : IconTheme(
-              data: IconThemeData(
-                color: textTheme.bodyText1.color,
-                size: 15,
-              ),
-              child: endIcon,
-            ),
-      label: icon == null && endIcon == null
-          ? label
-          : Expanded(
-              child: label,
-            ),
+      leftIcon: leftIcon,
+      rightIcon: rightIcon,
+      label: label,
     );
   }
 }

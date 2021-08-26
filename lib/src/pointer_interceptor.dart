@@ -10,10 +10,9 @@ import 'package:flutter/material.dart';
 class PointerInterceptor extends StatelessWidget {
   /// 构造函数
   const PointerInterceptor({
-    Key key,
-    @required this.child,
-  })  : assert(child != null),
-        super(key: key);
+    Key? key,
+    required this.child,
+  })  : super(key: key);
 
   /// child
   final Widget child;

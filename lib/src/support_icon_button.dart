@@ -13,8 +13,8 @@ import 'package:flutter/rendering.dart';
 class SupportIconButton extends StatelessWidget {
   /// iconButton
   const SupportIconButton({
-    Key key,
-    this.label,
+    Key? key,
+    required this.label,
     this.leftIcon,
     this.topIcon,
     this.rightIcon,
@@ -27,32 +27,27 @@ class SupportIconButton extends StatelessWidget {
     this.pressedOpacity = 0.4,
     this.borderRadius = const BorderRadius.all(Radius.circular(8.0)),
     this.alignment = Alignment.centerLeft,
-    @required this.onPressed,
+    required this.onPressed,
     this.mainAxisAlignment = MainAxisAlignment.center,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.min,
-  })  : assert(spacing != null),
-        assert(mainAxisAlignment != null),
-        assert(crossAxisAlignment != null),
-        assert(mainAxisSize != null),
-        assert(pressedOpacity == null || (pressedOpacity >= 0.0 && pressedOpacity <= 1.0)),
-        assert(disabledColor != null),
+  })  : assert(pressedOpacity >= 0.0 && pressedOpacity <= 1.0),
         super(key: key);
 
   /// 文本
   final Widget label;
 
   /// 图标
-  final Widget leftIcon;
+  final Widget? leftIcon;
 
   /// 图标
-  final Widget topIcon;
+  final Widget? topIcon;
 
   /// 图标
-  final Widget rightIcon;
+  final Widget? rightIcon;
 
   /// 图标
-  final Widget bottomIcon;
+  final Widget? bottomIcon;
 
   /// 间距
   final double spacing;
@@ -78,7 +73,7 @@ class SupportIconButton extends StatelessWidget {
   /// The amount of space to surround the child inside the bounds of the button.
   ///
   /// Defaults to 16.0 pixels.
-  final EdgeInsetsGeometry padding;
+  final EdgeInsetsGeometry? padding;
 
   /// The color of the button's background.
   ///
@@ -86,7 +81,7 @@ class SupportIconButton extends StatelessWidget {
   ///
   /// Defaults to the [CupertinoTheme]'s `primaryColor` when the
   /// [CupertinoButton.filled] constructor is used.
-  final Color color;
+  final Color? color;
 
   /// The color of the button's background when the button is disabled.
   ///
@@ -99,7 +94,7 @@ class SupportIconButton extends StatelessWidget {
   /// The callback that is called when the button is tapped or otherwise activated.
   ///
   /// If this is set to null, the button will be disabled.
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
 
   /// Minimum size of the button.
   ///

@@ -13,9 +13,9 @@ import 'package:flutter/material.dart';
 class PopupWindowAnchor extends StatefulWidget {
   /// 跟随控件的弹出框
   const PopupWindowAnchor({
-    Key key,
-    @required this.child,
-    @required this.builder,
+    Key? key,
+    required this.child,
+    required this.builder,
     this.offset = 0,
     this.direction = Axis.vertical,
     this.indicateSize = defaultIndicateSize,
@@ -28,19 +28,7 @@ class PopupWindowAnchor extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-  })  : assert(builder != null),
-        assert(child != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null && alignment >= -1 && alignment <= 1),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
+  })  : assert(alignment >= -1 && alignment <= 1),
         super(key: key);
 
   /// 对齐的child
@@ -83,7 +71,7 @@ class PopupWindowAnchor extends StatefulWidget {
   final bool barrierDismissible;
 
   /// 遮罩颜色
-  final Color barrierColor;
+  final Color? barrierColor;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -98,7 +86,7 @@ class PopupWindowAnchorState extends State<PopupWindowAnchor> {
   ///
   /// [anchor]-锚点，在屏幕中的位置
   /// [bounds]-边界，在屏幕中的位置
-  Future<T> show<T>({Rect anchor, Rect bounds}) {
+  Future<T?> show<T>({Rect? anchor, Rect? bounds}) {
     return showPopupWindow<T>(
       context,
       anchor: anchor,
@@ -120,7 +108,7 @@ class PopupWindowAnchorState extends State<PopupWindowAnchor> {
   }
 
   /// 隐藏
-  void hide<T>([T result]) {
+  void hide<T>([T? result]) {
     Navigator.pop(context, result);
   }
 
@@ -134,11 +122,11 @@ class PopupWindowAnchorState extends State<PopupWindowAnchor> {
 ///
 /// [anchor]-锚点，在屏幕中的位置
 /// [bounds]-边界，在屏幕中的位置
-Future<T> showPopupWindow<T>(
+Future<T?> showPopupWindow<T>(
   BuildContext context, {
-  @required WidgetBuilder builder,
-  Rect anchor,
-  Rect bounds,
+  required WidgetBuilder builder,
+  Rect? anchor,
+  Rect? bounds,
   double offset = 0,
   Size indicateSize = defaultIndicateSize,
   Axis direction = Axis.vertical,
@@ -150,24 +138,16 @@ Future<T> showPopupWindow<T>(
   BorderSide side = defaultSide,
   bool useRootNavigator = true,
   bool barrierDismissible = true,
-  Color barrierColor,
-  RouteSettings settings,
+  Color? barrierColor,
+  RouteSettings? settings,
   bool preferBelow = true,
 }) {
-  assert(builder != null);
-  assert(offset != null);
-  assert(indicateSize != null);
-  assert(direction != null);
-  assert(margin != null && margin >= 0);
-  assert(alignment != null && alignment.abs() <= 1);
-  assert(backgroundColor != null);
-  assert(borderRadius != null);
-  assert(shadows != null);
-  assert(side != null);
-  assert(barrierDismissible != null);
-  assert(useRootNavigator != null);
-  assert(preferBelow != null);
-  final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+  assert(margin >= 0);
+  assert(alignment.abs() <= 1);
+  final navigator = Navigator.of(
+    context,
+    rootNavigator: useRootNavigator,
+  );
   return navigator.push<T>(
     FlattererRoute<T>(
       builder,

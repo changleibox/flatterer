@@ -16,29 +16,29 @@ const _maxDistance = 100.0;
 /// 命中测试检测器
 class HitTestDetector {
   bool _waitUpEvent = false;
-  Offset _tapDownPosition;
-  Timer _tapTimer;
+  Offset? _tapDownPosition;
+  Timer? _tapTimer;
   bool _isSetup = false;
 
   /// 命中测试
-  ValueChanged<HitTestResult> _onTapHitTest;
+  ValueChanged<HitTestResult>? _onTapHitTest;
 
   /// 回调每个事件，最先执行
-  ValueChanged<PointerEvent> _onPointerEvent;
+  ValueChanged<PointerEvent>? _onPointerEvent;
 
   /// 初始化
-  void setup({ValueChanged<HitTestResult> onTapHitTest, ValueChanged<PointerEvent> onPointerEvent}) {
+  void setup({ValueChanged<HitTestResult>? onTapHitTest, ValueChanged<PointerEvent>? onPointerEvent}) {
     assert(!_isSetup);
     _isSetup = true;
     _onTapHitTest = onTapHitTest;
     _onPointerEvent = onPointerEvent;
-    GestureBinding.instance.pointerRouter.addGlobalRoute(_handlePointerEvent);
+    GestureBinding.instance!.pointerRouter.addGlobalRoute(_handlePointerEvent);
   }
 
   /// 释放
   void dispose() {
     assert(_isSetup);
-    GestureBinding.instance.pointerRouter.removeGlobalRoute(_handlePointerEvent);
+    GestureBinding.instance!.pointerRouter.removeGlobalRoute(_handlePointerEvent);
   }
 
   void _handlePointerEvent(PointerEvent event) {
@@ -74,7 +74,7 @@ class HitTestDetector {
   }
 
   // 是否抽出点击范围
-  bool _isOverflowClickDistance(Offset a, Offset b, [double distance = _maxDistance]) {
+  bool _isOverflowClickDistance(Offset? a, Offset? b, [double distance = _maxDistance]) {
     if (a == null || b == null) {
       return true;
     }
@@ -85,14 +85,14 @@ class HitTestDetector {
 /// 扩展[HitTestResult]
 extension HitTestResultTarget on HitTestResult {
   /// 遍历访问target
-  bool any(bool Function(HitTestTarget target, Object data) visitor) {
+  bool any(bool Function(HitTestTarget target, Object? data) visitor) {
     return path.map((e) => e.target).any((element) {
       return visitor(element, element is RenderMetaData ? element.metaData : null);
     });
   }
 
   /// 遍历访问target
-  bool every(bool Function(HitTestTarget target, Object data) visitor) {
+  bool every(bool Function(HitTestTarget target, Object? data) visitor) {
     return path.map((e) => e.target).every((element) {
       return visitor(element, element is RenderMetaData ? element.metaData : null);
     });
@@ -104,7 +104,7 @@ extension PointerEventHitTestResult on PointerEvent {
   /// 返回[HitTestResult]
   HitTestResult get result {
     final result = HitTestResult();
-    WidgetsBinding.instance.hitTest(result, position);
+    WidgetsBinding.instance!.hitTest(result, position);
     return result;
   }
 }

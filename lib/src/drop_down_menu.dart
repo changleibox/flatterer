@@ -21,16 +21,14 @@ const _constraints = BoxConstraints(
 class DropDownMenu extends StatelessWidget {
   /// 更多弹框
   const DropDownMenu({
-    Key key,
-    @required this.items,
+    Key? key,
+    required this.items,
     this.divider = const Divider(
       indent: 40,
       endIndent: 10,
     ),
     this.constraints = _constraints,
-  })  : assert(items != null),
-        assert(constraints != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// item
   final List<Widget> items;
@@ -57,7 +55,7 @@ class DropDownMenu extends StatelessWidget {
       child = SizeTransition(
         axisAlignment: -1,
         sizeFactor: CurvedAnimation(
-          parent: ModalRoute.of(context).animation,
+          parent: animation,
           curve: const Interval(0.2, 0.8),
           reverseCurve: const Interval(0.2, 0.8),
         ),
@@ -78,9 +76,9 @@ class DropDownMenu extends StatelessWidget {
 }
 
 /// 显示DropDownMenu
-Future<T> showDropDownMenu<T>({
-  @required BuildContext context,
-  @required List<Widget> items,
+Future<T?> showDropDownMenu<T>({
+  required BuildContext context,
+  required List<Widget> items,
   Widget divider = const Divider(
     indent: 40,
     endIndent: 10,
@@ -91,13 +89,7 @@ Future<T> showDropDownMenu<T>({
   double margin = 10,
   BoxConstraints constraints = _constraints,
 }) async {
-  assert(context != null);
-  assert(direction != null);
-  assert(items?.isNotEmpty == true);
-  assert(indicateSize != null);
-  assert(offset != null);
-  assert(margin != null);
-  assert(constraints != null);
+  assert(items.isNotEmpty == true);
   return await showPopupWindow<T>(
     context,
     indicateSize: indicateSize,

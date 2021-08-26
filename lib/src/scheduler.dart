@@ -10,15 +10,15 @@ import 'package:flutter/scheduler.dart';
 class Scheduler {
   /// 构造函数
   Scheduler.postFrame(VoidCallback callback) {
-    if (SchedulerBinding.instance.schedulerPhase == SchedulerPhase.persistentCallbacks) {
-      SchedulerBinding.instance.addPostFrameCallback((Duration duration) {
+    if (SchedulerBinding.instance!.schedulerPhase == SchedulerPhase.persistentCallbacks) {
+      SchedulerBinding.instance!.addPostFrameCallback((Duration duration) {
         if (_canceled) {
           return;
         }
-        callback?.call();
+        callback.call();
       });
     } else {
-      callback?.call();
+      callback.call();
     }
   }
 

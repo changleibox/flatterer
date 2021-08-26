@@ -19,9 +19,9 @@ import 'package:flutter/scheduler.dart';
 class StackWindowContainer extends StatefulWidget {
   /// 浮动提示
   const StackWindowContainer({
-    Key key,
-    @required this.child,
-    @required this.builder,
+    Key? key,
+    required this.child,
+    required this.builder,
     this.offset = 0,
     this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
@@ -36,20 +36,7 @@ class StackWindowContainer extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-  })  : assert(child != null),
-        assert(builder != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 需要对齐的child
   final Widget child;
@@ -73,10 +60,10 @@ class StackWindowContainer extends StatefulWidget {
   final double alignment;
 
   /// 跟踪者
-  final LayerLink link;
+  final LayerLink? link;
 
   /// 隐藏回调
-  final VoidCallback onDismiss;
+  final VoidCallback? onDismiss;
 
   /// 窗口背景颜色
   final Color backgroundColor;
@@ -97,7 +84,7 @@ class StackWindowContainer extends StatefulWidget {
   final bool barrierDismissible;
 
   /// 遮罩颜色
-  final Color barrierColor;
+  final Color? barrierColor;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -110,10 +97,10 @@ class StackWindowContainer extends StatefulWidget {
 class StackWindowContainerState extends State<StackWindowContainer> with SingleTickerProviderStateMixin {
   final _hitTestDetector = HitTestDetector();
 
-  Rect _anchor;
-  AnimationController _controller;
-  VoidCallback _listener;
-  Scheduler _scheduler;
+  late AnimationController _controller;
+  Rect? _anchor;
+  VoidCallback? _listener;
+  Scheduler? _scheduler;
   bool _isTapDownHit = false;
 
   @override
@@ -130,14 +117,14 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 
   @override
   void dispose() {
-    _controller?.dispose();
+    _controller.dispose();
     _scheduler?.cancel();
     _scheduler = null;
     _hitTestDetector.dispose();
     super.dispose();
   }
 
-  bool _visitAny(HitTestTarget target, Object data) {
+  bool _visitAny(HitTestTarget target, Object? data) {
     return data != null && (data == this || data == widget.child);
   }
 
@@ -160,8 +147,6 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   ///
   /// [anchor]-锚点，这里坐标是相对于父控件的坐标
   void show(Rect anchor, {TrackBehavior behavior = TrackBehavior.lazy}) {
-    assert(anchor != null);
-    assert(behavior != null);
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -178,7 +163,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     }
 
     if (_listener != null) {
-      animation.removeListener(_listener);
+      animation.removeListener(_listener!);
       _listener = null;
     }
     animation.addListener(_listener = listener);
@@ -193,7 +178,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
     }
   }
 
-  void _showOrUpdate(Rect anchor) {
+  void _showOrUpdate(Rect? anchor) {
     _onPostFrame(() {
       if (!mounted) {
         return;
@@ -207,7 +192,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   /// 隐藏
   void dismiss() {
     if (_listener != null) {
-      _controller.removeListener(_listener);
+      _controller.removeListener(_listener!);
       _listener = null;
       _controller.value = _controller.upperBound;
     }
@@ -267,9 +252,9 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
 class StackWindow extends StatefulWidget {
   /// 浮动提示
   const StackWindow({
-    Key key,
-    @required this.anchor,
-    @required this.builder,
+    Key? key,
+    required this.anchor,
+    required this.builder,
     this.offset = 0,
     this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
@@ -284,22 +269,10 @@ class StackWindow extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-  })  : assert(builder != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 锚点，这里坐标是相对于父控件的坐标
-  final Rect anchor;
+  final Rect? anchor;
 
   /// 构建弹窗内容
   final WidgetBuilder builder;
@@ -320,10 +293,10 @@ class StackWindow extends StatefulWidget {
   final double alignment;
 
   /// 跟踪者
-  final LayerLink link;
+  final LayerLink? link;
 
   /// 隐藏回调
-  final VoidCallback onDismiss;
+  final VoidCallback? onDismiss;
 
   /// 窗口背景颜色
   final Color backgroundColor;
@@ -344,7 +317,7 @@ class StackWindow extends StatefulWidget {
   final bool barrierDismissible;
 
   /// 遮罩颜色
-  final Color barrierColor;
+  final Color? barrierColor;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -354,11 +327,16 @@ class StackWindow extends StatefulWidget {
 }
 
 /// 堆叠在原控件上的window，其实也不能算是window，只是控件的堆叠
-class StackWindowState extends State<StackWindow> {
-  ModalRoute<dynamic> _route;
+class StackWindowState extends State<StackWindow> with TickerProviderStateMixin {
+  ModalRoute<dynamic>? _route;
+  late AnimationController _controller;
 
   @override
   void initState() {
+    _controller = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
     _initOverlayWindow();
     super.initState();
   }
@@ -370,6 +348,12 @@ class StackWindowState extends State<StackWindow> {
     }
     _initOverlayWindow();
     super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
   }
 
   /// 销毁
@@ -388,7 +372,7 @@ class StackWindowState extends State<StackWindow> {
     }
     _route = FlattererRoute<dynamic>(
       widget.builder,
-      widget.anchor,
+      widget.anchor!,
       offset: widget.offset,
       direction: widget.direction,
       indicateSize: widget.indicateSize,
@@ -407,12 +391,12 @@ class StackWindowState extends State<StackWindow> {
 
   @override
   Widget build(BuildContext context) {
-    var child = _route?.buildPage(context, null, null);
+    var child = _route?.buildPage(context, _controller, _controller);
     if (child != null && widget.link != null) {
       child = CompositedTransformFollower(
-        link: widget.link,
+        link: widget.link!,
         showWhenUnlinked: false,
-        offset: -widget.anchor.topLeft,
+        offset: -widget.anchor!.topLeft,
         child: child,
       );
     }
@@ -422,10 +406,10 @@ class StackWindowState extends State<StackWindow> {
         child: AnimatedSwitcher(
           duration: fadeDuration,
           transitionBuilder: (child, animation) {
-            if (widget.barrierColor != null && widget.barrierColor.alpha != 0) {
+            if (widget.barrierColor != null && widget.barrierColor!.alpha != 0) {
               final color = animation.drive(
                 ColorTween(
-                  begin: widget.barrierColor.withOpacity(0.0),
+                  begin: widget.barrierColor!.withOpacity(0.0),
                   end: widget.barrierColor,
                 ).chain(CurveTween(curve: Curves.ease)),
               );
@@ -433,7 +417,7 @@ class StackWindowState extends State<StackWindow> {
                 animation: color,
                 builder: (context, child) {
                   return ColoredBox(
-                    color: color.value,
+                    color: color.value!,
                     child: child,
                   );
                 },

@@ -19,12 +19,7 @@ class IndicateBorder extends OutlinedBorder {
     this.anchor = Rect.zero,
     this.direction = Axis.vertical,
     BorderSide side = BorderSide.none,
-  })  : assert(indicateSize != null),
-        assert(borderRadius != null),
-        assert(anchor != null),
-        assert(direction != null),
-        assert(side != null),
-        super(side: side);
+  }) : super(side: side);
 
   /// 三角形的大小，宽高对应三角形的底边和高
   final Size indicateSize;
@@ -56,14 +51,13 @@ class IndicateBorder extends OutlinedBorder {
   }
 
   @override
-  ShapeBorder lerpFrom(ShapeBorder a, double t) {
-    assert(t != null);
+  ShapeBorder? lerpFrom(ShapeBorder? a, double t) {
     if (a is IndicateBorder) {
       return IndicateBorder(
         side: BorderSide.lerp(a.side, side, t),
-        borderRadius: BorderRadiusGeometry.lerp(a.borderRadius, borderRadius, t),
-        indicateSize: Size.lerp(a.indicateSize, indicateSize, t),
-        anchor: Rect.lerp(a.anchor, anchor, t),
+        borderRadius: BorderRadiusGeometry.lerp(a.borderRadius, borderRadius, t)!,
+        indicateSize: Size.lerp(a.indicateSize, indicateSize, t)!,
+        anchor: Rect.lerp(a.anchor, anchor, t)!,
         direction: direction,
       );
     }
@@ -71,14 +65,13 @@ class IndicateBorder extends OutlinedBorder {
   }
 
   @override
-  ShapeBorder lerpTo(ShapeBorder b, double t) {
-    assert(t != null);
+  ShapeBorder? lerpTo(ShapeBorder? b, double t) {
     if (b is IndicateBorder) {
       return IndicateBorder(
         side: BorderSide.lerp(side, b.side, t),
-        borderRadius: BorderRadiusGeometry.lerp(borderRadius, b.borderRadius, t),
-        indicateSize: Size.lerp(indicateSize, b.indicateSize, t),
-        anchor: Rect.lerp(anchor, b.anchor, t),
+        borderRadius: BorderRadiusGeometry.lerp(borderRadius, b.borderRadius, t)!,
+        indicateSize: Size.lerp(indicateSize, b.indicateSize, t)!,
+        anchor: Rect.lerp(anchor, b.anchor, t)!,
         direction: direction,
       );
     }
@@ -87,11 +80,11 @@ class IndicateBorder extends OutlinedBorder {
 
   @override
   IndicateBorder copyWith({
-    Size indicateSize,
-    BorderRadius borderRadius,
-    Rect anchor,
-    Axis direction,
-    BorderSide side,
+    Size? indicateSize,
+    BorderRadius? borderRadius,
+    Rect? anchor,
+    Axis? direction,
+    BorderSide? side,
   }) {
     return IndicateBorder(
       indicateSize: indicateSize ?? this.indicateSize,
@@ -103,12 +96,12 @@ class IndicateBorder extends OutlinedBorder {
   }
 
   @override
-  Path getInnerPath(Rect rect, {TextDirection textDirection}) {
+  Path getInnerPath(Rect rect, {TextDirection? textDirection}) {
     return _getPath(rect, textDirection: textDirection, delta: side.width);
   }
 
   @override
-  Path getOuterPath(Rect rect, {TextDirection textDirection}) {
+  Path getOuterPath(Rect rect, {TextDirection? textDirection}) {
     return _getPath(rect, textDirection: textDirection);
   }
 
@@ -137,7 +130,7 @@ class IndicateBorder extends OutlinedBorder {
     double offset,
     double width,
     double height, {
-    TextDirection textDirection,
+    TextDirection? textDirection,
   }) {
     final indicateOriginSize = indicateSize.height;
     final translation = (anchor.center - rect.topCenter).dy;
@@ -159,8 +152,8 @@ class IndicateBorder extends OutlinedBorder {
     return indicatePath;
   }
 
-  Path _getPath(Rect rect, {TextDirection textDirection, double delta = 0}) {
-    assert(delta != null && delta >= 0);
+  Path _getPath(Rect rect, {TextDirection? textDirection, double delta = 0}) {
+    assert(delta >= 0);
     final path = Path()..addRRect(borderRadius.resolve(textDirection).toRRect(rect).deflate(delta));
     if (indicateSize.isEmpty) {
       return path;
@@ -209,7 +202,7 @@ class IndicateBorder extends OutlinedBorder {
   }
 
   @override
-  void paint(Canvas canvas, Rect rect, {TextDirection textDirection}) {
+  void paint(Canvas canvas, Rect rect, {TextDirection? textDirection}) {
     switch (side.style) {
       case BorderStyle.none:
         break;

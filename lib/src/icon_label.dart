@@ -11,36 +11,30 @@ import 'package:flutter/widgets.dart';
 class IconLabel extends StatelessWidget {
   /// 由一个icon和label组成的控件
   const IconLabel({
-    Key key,
+    Key? key,
     this.leftIcon,
     this.topIcon,
     this.rightIcon,
     this.bottomIcon,
-    @required this.label,
+    required this.label,
     this.verticalSpacing = 0,
     this.horizontalSpacing = 0,
     this.alignment = MainAxisAlignment.center,
     this.crossAxisAlignment = CrossAxisAlignment.center,
     this.mainAxisSize = MainAxisSize.min,
-  })  : assert(label != null),
-        assert(verticalSpacing != null),
-        assert(horizontalSpacing != null),
-        assert(alignment != null),
-        assert(crossAxisAlignment != null),
-        assert(mainAxisSize != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 图标
-  final Widget leftIcon;
+  final Widget? leftIcon;
 
   /// 图标
-  final Widget topIcon;
+  final Widget? topIcon;
 
   /// 图标
-  final Widget rightIcon;
+  final Widget? rightIcon;
 
   /// 图标
-  final Widget bottomIcon;
+  final Widget? bottomIcon;
 
   /// 文本
   final Widget label;
@@ -79,9 +73,9 @@ class IconLabel extends StatelessWidget {
         mainAxisSize: mainAxisSize,
         spacing: horizontalSpacing,
         children: <Widget>[
-          if (leftIcon != null) leftIcon,
+          if (leftIcon != null) leftIcon!,
           child,
-          if (rightIcon != null) rightIcon,
+          if (rightIcon != null) rightIcon!,
         ],
       );
     }
@@ -93,9 +87,9 @@ class IconLabel extends StatelessWidget {
         direction: Axis.vertical,
         spacing: verticalSpacing,
         children: <Widget>[
-          if (topIcon != null) topIcon,
+          if (topIcon != null) topIcon!,
           child,
-          if (bottomIcon != null) bottomIcon,
+          if (bottomIcon != null) bottomIcon!,
         ],
       );
     }

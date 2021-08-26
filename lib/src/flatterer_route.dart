@@ -28,23 +28,9 @@ class FlattererRoute<T> extends PageRoute<T> {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-    @required this.capturedThemes,
-    RouteSettings settings,
-  })  : assert(builder != null),
-        assert(anchor != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
-        assert(capturedThemes != null),
-        super(
+    required this.capturedThemes,
+    RouteSettings? settings,
+  }) : super(
           settings: settings,
         );
 
@@ -70,7 +56,7 @@ class FlattererRoute<T> extends PageRoute<T> {
   final double alignment;
 
   /// 边界，也可以是随意指定，限制弹窗的范围
-  final Rect bounds;
+  final Rect? bounds;
 
   /// 窗口背景颜色
   final Color backgroundColor;
@@ -97,10 +83,10 @@ class FlattererRoute<T> extends PageRoute<T> {
   final bool barrierDismissible;
 
   @override
-  final Color barrierColor;
+  final Color? barrierColor;
 
   @override
-  String get barrierLabel => null;
+  String? get barrierLabel => null;
 
   @override
   bool get opaque => false;
@@ -163,24 +149,16 @@ class FlattererRoute<T> extends PageRoute<T> {
 
 class _Flatterer extends StatelessWidget {
   const _Flatterer({
-    Key key,
-    @required this.child,
-    @required this.anchor,
-    @required this.direction,
-    @required this.indicateSize,
-    @required this.backgroundColor,
-    @required this.borderRadius,
-    @required this.shadows,
-    @required this.side,
-  })  : assert(child != null),
-        assert(anchor != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        super(key: key);
+    Key? key,
+    required this.child,
+    required this.anchor,
+    required this.direction,
+    required this.indicateSize,
+    required this.backgroundColor,
+    required this.borderRadius,
+    required this.shadows,
+    required this.side,
+  }) : super(key: key);
 
   final Widget child;
   final Rect anchor;
@@ -235,7 +213,7 @@ class _FlattererLayoutDelegate extends SingleChildLayoutDelegate {
     this.preferBelow = true,
   });
 
-  final Rect bounds;
+  final Rect? bounds;
   final Rect anchor;
   final double offset;
   final Axis direction;
@@ -283,7 +261,7 @@ class _FlattererLayoutDelegate extends SingleChildLayoutDelegate {
         bounds != oldDelegate.bounds;
   }
 
-  Offset _computeBoundsOffset(Axis direction, Rect bounds) {
+  Offset _computeBoundsOffset(Axis direction, Rect? bounds) {
     if (bounds == null) {
       return Offset.zero;
     }

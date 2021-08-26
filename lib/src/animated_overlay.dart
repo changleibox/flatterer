@@ -18,21 +18,19 @@ class AnimatedOverlay {
   AnimatedOverlay(
     BuildContext context, {
     bool rootOverlay = false,
-  })  : assert(context != null),
-        assert(rootOverlay != null),
-        _overlayState = Overlay.of(
+  }) : _overlayState = Overlay.of(
           context,
           rootOverlay: rootOverlay,
-        );
+        )!;
 
   final OverlayState _overlayState;
 
   final _listeners = ObserverList<VoidCallback>();
 
-  AnimationController _controller;
-  OverlayEntry _overlay;
-  Completer<void> _completer;
-  Scheduler _scheduler;
+  AnimationController? _controller;
+  OverlayEntry? _overlay;
+  Completer<void>? _completer;
+  Scheduler? _scheduler;
 
   /// 是否正在显示
   bool get isShowing => _overlay != null;
@@ -49,20 +47,15 @@ class AnimatedOverlay {
 
   /// 显示
   void insert({
-    @required RoutePageBuilder builder,
-    @required RouteTransitionsBuilder transitionBuilder,
+    required RoutePageBuilder builder,
+    required RouteTransitionsBuilder transitionBuilder,
     Duration transitionDuration = fadeDuration,
     Curve curve = Curves.linear,
     bool immediately = false,
-    OverlayEntry below,
-    OverlayEntry above,
-    ValueChanged<OverlayEntry> onInserted,
+    OverlayEntry? below,
+    OverlayEntry? above,
+    ValueChanged<OverlayEntry>? onInserted,
   }) {
-    assert(builder != null);
-    assert(transitionBuilder != null);
-    assert(transitionDuration != null);
-    assert(curve != null);
-    assert(immediately != null);
     if (_isAnimatingStatus(AnimationStatus.forward) && !immediately) {
       _overlay?.markNeedsBuild();
       return;
@@ -71,31 +64,31 @@ class AnimatedOverlay {
       if (_controller == null) {
         return;
       }
-      final animation = _controller.view;
+      final animation = _controller!.view;
       _overlay?.remove();
       _overlay = OverlayEntry(
         builder: (BuildContext context) {
           return AnimatedBuilder(
             animation: animation,
-            builder: (BuildContext context, Widget child) {
-              return transitionBuilder(context, animation, animation, child);
+            builder: (BuildContext context, Widget? child) {
+              return transitionBuilder(context, animation, animation, child!);
             },
             child: builder(context, animation, animation),
           );
         },
       );
       _overlayState.insert(
-        _overlay,
+        _overlay!,
         below: below,
         above: above,
       );
-      onInserted?.call(_overlay);
+      onInserted?.call(_overlay!);
 
       if (immediately) {
-        _controller.value = _controller.upperBound;
+        _controller!.value = _controller!.upperBound;
       } else {
-        _controller.animateTo(
-          _controller.upperBound,
+        _controller!.animateTo(
+          _controller!.upperBound,
           duration: transitionDuration,
           curve: curve,
         );
@@ -109,7 +102,7 @@ class AnimatedOverlay {
       duration: transitionDuration,
     );
     _completer = Completer<void>();
-    _completer.future.then<void>(_notifyListeners);
+    _completer!.future.then<void>(_notifyListeners);
 
     _onPostFrame(insertOverlay);
   }
@@ -129,9 +122,6 @@ class AnimatedOverlay {
     Curve curve = Curves.linear,
     bool immediately = false,
   }) {
-    assert(transitionDuration != null);
-    assert(curve != null);
-    assert(immediately != null);
     if (_isAnimatingStatus(AnimationStatus.reverse) && !immediately) {
       return;
     }
@@ -142,8 +132,8 @@ class AnimatedOverlay {
       if (immediately) {
         _dispose();
       } else {
-        final animateBack = _controller.animateBack(
-          _controller.lowerBound,
+        final animateBack = _controller!.animateBack(
+          _controller!.lowerBound,
           duration: transitionDuration,
           curve: curve,
         );
@@ -172,8 +162,6 @@ class AnimatedOverlay {
   }
 
   void _onPostFrame(VoidCallback callback, [bool cancel = true]) {
-    assert(cancel != null);
-    assert(callback != null);
     if (cancel) {
       _scheduler?.cancel();
     }

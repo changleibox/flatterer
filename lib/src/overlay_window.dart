@@ -19,9 +19,9 @@ import 'package:flutter/rendering.dart';
 class OverlayWindowAnchor extends StatefulWidget {
   /// 浮动提示
   const OverlayWindowAnchor({
-    Key key,
-    @required this.child,
-    @required this.builder,
+    Key? key,
+    required this.child,
+    required this.builder,
     this.offset = 0,
     this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
@@ -40,21 +40,7 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.below,
     this.above,
     this.onInserted,
-  })  : assert(child != null),
-        assert(builder != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
-        assert(useRootNavigator != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 需要对齐的child
   final Widget child;
@@ -78,10 +64,10 @@ class OverlayWindowAnchor extends StatefulWidget {
   final double alignment;
 
   /// 跟踪者
-  final LayerLink link;
+  final LayerLink? link;
 
   /// 隐藏回调
-  final VoidCallback onDismiss;
+  final VoidCallback? onDismiss;
 
   /// 窗口背景颜色
   final Color backgroundColor;
@@ -102,7 +88,7 @@ class OverlayWindowAnchor extends StatefulWidget {
   final bool barrierDismissible;
 
   /// 遮罩颜色
-  final Color barrierColor;
+  final Color? barrierColor;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -111,13 +97,13 @@ class OverlayWindowAnchor extends StatefulWidget {
   final bool useRootNavigator;
 
   /// 显示在below
-  final OverlayEntry below;
+  final OverlayEntry? below;
 
   /// 显示在above
-  final OverlayEntry above;
+  final OverlayEntry? above;
 
   /// 当窗口插入的时候
-  final ValueChanged<OverlayEntry> onInserted;
+  final ValueChanged<OverlayEntry>? onInserted;
 
   @override
   OverlayWindowAnchorState createState() => OverlayWindowAnchorState();
@@ -127,18 +113,18 @@ class OverlayWindowAnchor extends StatefulWidget {
 class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTickerProviderStateMixin {
   final _hitTestDetector = HitTestDetector();
 
-  LayerLink _link;
+  late LayerLink _link;
+  late AnimationController _controller;
 
-  OverlayWindow _overlayWindow;
-  Rect _anchor;
-  AnimationController _controller;
-  VoidCallback _listener;
+  OverlayWindow? _overlayWindow;
+  Rect? _anchor;
+  VoidCallback? _listener;
   bool _isTapDownHit = false;
 
   @override
   void initState() {
     _overlayWindow = OverlayWindow(context);
-    _overlayWindow.addListener(_onDismissed);
+    _overlayWindow!.addListener(_onDismissed);
     _controller = AnimationController(
       vsync: this,
       duration: fadeDuration,
@@ -163,12 +149,12 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     _overlayWindow?.removeListener(_onDismissed);
     _overlayWindow?.dismiss(immediately: true);
     _overlayWindow = null;
-    _controller?.dispose();
+    _controller.dispose();
     _hitTestDetector.dispose();
     super.dispose();
   }
 
-  bool _visitAny(HitTestTarget target, Object data) {
+  bool _visitAny(HitTestTarget target, Object? data) {
     return data != null && (data == this || data == widget.child);
   }
 
@@ -185,7 +171,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   /// 是否正在显示
-  bool get isShowing => _overlayWindow != null && _overlayWindow.isShowing;
+  bool get isShowing => _overlayWindow != null && _overlayWindow!.isShowing;
 
   /// 显示
   ///
@@ -193,12 +179,11 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   /// [bounds]-边界，在屏幕中的位置
   /// [compositedTransformTarget]-compositedTransformTarget控件的坐标，默认为anchor的坐标
   void show({
-    Rect anchor,
-    Rect compositedTransformTarget,
-    Rect bounds,
+    Rect? anchor,
+    Rect? compositedTransformTarget,
+    Rect? bounds,
     TrackBehavior behavior = TrackBehavior.lazy,
   }) {
-    assert(behavior != null);
     final rectTween = RectTween(begin: _anchor, end: anchor);
     final animation = rectTween.animate(_controller);
     void listener() {
@@ -215,7 +200,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
 
     if (_listener != null) {
-      animation.removeListener(_listener);
+      animation.removeListener(_listener!);
       _listener = null;
     }
     animation.addListener(_listener = listener);
@@ -230,8 +215,8 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     }
   }
 
-  void _showOrUpdate(Rect anchor, Rect compositedTransformTarget, {Rect bounds}) {
-    _overlayWindow.show(
+  void _showOrUpdate(Rect? anchor, Rect? compositedTransformTarget, {Rect? bounds}) {
+    _overlayWindow!.show(
       builder: (context) {
         return MetaData(
           metaData: this,
@@ -265,7 +250,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   /// 隐藏
   void dismiss() {
     if (_listener != null) {
-      _controller.removeListener(_listener);
+      _controller.removeListener(_listener!);
       _listener = null;
       _controller.value = _controller.upperBound;
     }
@@ -295,9 +280,9 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
 class OverlayWindowContainer extends StatefulWidget {
   /// 浮动提示
   const OverlayWindowContainer({
-    Key key,
-    @required this.child,
-    @required this.builder,
+    Key? key,
+    required this.child,
+    required this.builder,
     this.offset = 0,
     this.indicateSize = defaultIndicateSize,
     this.direction = Axis.vertical,
@@ -312,20 +297,7 @@ class OverlayWindowContainer extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
-  })  : assert(child != null),
-        assert(builder != null),
-        assert(offset != null),
-        assert(direction != null),
-        assert(indicateSize != null),
-        assert(margin != null),
-        assert(alignment != null),
-        assert(backgroundColor != null),
-        assert(borderRadius != null),
-        assert(shadows != null),
-        assert(side != null),
-        assert(barrierDismissible != null),
-        assert(preferBelow != null),
-        super(key: key);
+  }) : super(key: key);
 
   /// 需要对齐的child
   final Widget child;
@@ -349,10 +321,10 @@ class OverlayWindowContainer extends StatefulWidget {
   final double alignment;
 
   /// 跟踪者
-  final LayerLink link;
+  final LayerLink? link;
 
   /// 隐藏回调
-  final VoidCallback onDismiss;
+  final VoidCallback? onDismiss;
 
   /// 窗口背景颜色
   final Color backgroundColor;
@@ -373,7 +345,7 @@ class OverlayWindowContainer extends StatefulWidget {
   final bool barrierDismissible;
 
   /// 遮罩颜色
-  final Color barrierColor;
+  final Color? barrierColor;
 
   /// 优先显示在末尾
   final bool preferBelow;
@@ -387,14 +359,14 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
   final _overlayAnchorKey = GlobalKey<OverlayWindowAnchorState>();
 
   /// 是否正在显示
-  bool get isShowing => _overlayAnchorKey.currentState.isShowing;
+  bool get isShowing => _overlayAnchorKey.currentState?.isShowing == true;
 
   /// 显示
   ///
   /// [anchor]-锚点，在父控件中的位置
   void show(Rect anchor, {TrackBehavior behavior = TrackBehavior.lazy}) {
     final bounds = localToGlobal(context);
-    _overlayAnchorKey.currentState.show(
+    _overlayAnchorKey.currentState?.show(
       anchor: anchor.shift(bounds.topLeft),
       compositedTransformTarget: widget.link == null ? bounds : null,
       bounds: bounds,
@@ -404,7 +376,7 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
 
   /// 隐藏
   void dismiss() {
-    _overlayAnchorKey.currentState.dismiss();
+    _overlayAnchorKey.currentState?.dismiss();
   }
 
   @override
@@ -440,7 +412,7 @@ class OverlayWindow {
   final BuildContext context;
   final AnimatedOverlay _overlay;
 
-  ModalRoute<dynamic> _route;
+  ModalRoute<dynamic>? _route;
 
   /// 是否正在显示
   bool get isShowing => _overlay.isShowing;
@@ -461,16 +433,16 @@ class OverlayWindow {
   /// [bounds]-边界，在屏幕中的位置
   /// [compositedTransformTarget]-compositedTransformTarget控件的坐标，默认为anchor的坐标
   void show({
-    Rect anchor,
-    Rect compositedTransformTarget,
-    @required WidgetBuilder builder,
+    Rect? anchor,
+    Rect? compositedTransformTarget,
+    required WidgetBuilder builder,
     double offset = 0,
     Size indicateSize = Size.zero,
     Axis direction = Axis.vertical,
     double margin = 0,
     double alignment = 0,
-    LayerLink link,
-    Rect bounds,
+    LayerLink? link,
+    Rect? bounds,
     bool immediately = false,
     Color backgroundColor = Colors.white,
     BorderRadiusGeometry borderRadius = defaultBorderRadius,
@@ -478,26 +450,14 @@ class OverlayWindow {
     BorderSide side = defaultSide,
     bool useRootNavigator = true,
     bool barrierDismissible = true,
-    Color barrierColor,
+    Color? barrierColor,
     bool preferBelow = true,
-    OverlayEntry below,
-    OverlayEntry above,
-    ValueChanged<OverlayEntry> onInserted,
+    OverlayEntry? below,
+    OverlayEntry? above,
+    ValueChanged<OverlayEntry>? onInserted,
   }) {
-    assert(builder != null);
-    assert(offset != null);
-    assert(indicateSize != null);
-    assert(direction != null);
-    assert(margin != null && margin >= 0);
-    assert(alignment != null && alignment.abs() <= 1);
-    assert(backgroundColor != null);
-    assert(borderRadius != null);
-    assert(shadows != null);
-    assert(side != null);
-    assert(barrierDismissible != null);
-    assert(useRootNavigator != null);
-    assert(preferBelow != null);
-    assert(immediately != null);
+    assert(margin >= 0);
+    assert(alignment.abs() <= 1);
     final currentAnchor = anchor ?? localToGlobal(context);
     _route = FlattererRoute<dynamic>(
       builder,
@@ -524,7 +484,7 @@ class OverlayWindow {
           overlayWindow: this,
           child: DismissWindowScope(
             dismiss: dismiss,
-            child: _route.buildPage(context, animation, secondaryAnimation),
+            child: _route!.buildPage(context, animation, secondaryAnimation),
           ),
         );
         if (link != null) {
@@ -540,13 +500,13 @@ class OverlayWindow {
             ColorTween(
               begin: barrierColor.withOpacity(0.0),
               end: barrierColor,
-            ).chain(CurveTween(curve: _route.barrierCurve)),
+            ).chain(CurveTween(curve: _route!.barrierCurve)),
           );
           child = AnimatedBuilder(
             animation: color,
             builder: (context, child) {
               return ColoredBox(
-                color: color.value,
+                color: color.value!,
                 child: child,
               );
             },
@@ -556,10 +516,10 @@ class OverlayWindow {
         return child;
       },
       transitionBuilder: (context, animation, secondaryAnimation, child) {
-        return _route.buildTransitions(context, animation, secondaryAnimation, child);
+        return _route!.buildTransitions(context, animation, secondaryAnimation, child);
       },
-      transitionDuration: _route.transitionDuration,
-      curve: _route.barrierCurve,
+      transitionDuration: _route!.transitionDuration,
+      curve: _route!.barrierCurve,
       immediately: immediately,
       below: below,
       above: above,
@@ -569,20 +529,19 @@ class OverlayWindow {
 
   /// 隐藏
   void dismiss({bool immediately = false}) {
-    assert(immediately != null);
     if (_route == null) {
       _overlay.remove(immediately: true);
     } else {
       _overlay.remove(
-        transitionDuration: _route.reverseTransitionDuration,
-        curve: _route.barrierCurve,
+        transitionDuration: _route!.reverseTransitionDuration,
+        curve: _route!.barrierCurve,
         immediately: immediately,
       );
     }
   }
 
   /// 获取锚点state
-  static OverlayWindow of(BuildContext context) {
+  static OverlayWindow? of(BuildContext context) {
     final widget = context.dependOnInheritedWidgetOfExactType<_OverlayWindowScope>();
     return widget?.overlayWindow;
   }
@@ -590,12 +549,10 @@ class OverlayWindow {
 
 class _OverlayWindowScope extends InheritedWidget {
   const _OverlayWindowScope({
-    Key key,
-    @required this.overlayWindow,
-    @required Widget child,
-  })  : assert(overlayWindow != null),
-        assert(child != null),
-        super(key: key, child: child);
+    Key? key,
+    required this.overlayWindow,
+    required Widget child,
+  }) : super(key: key, child: child);
 
   final OverlayWindow overlayWindow;
 
