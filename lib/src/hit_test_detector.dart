@@ -11,6 +11,9 @@ import 'package:flutter/rendering.dart';
 const _maxInterval = kLongPressTimeout;
 const _maxDistance = 100.0;
 
+/// 遍历[HitTestResult]
+typedef HitTestResultVisitor = bool Function(HitTestTarget target, Object? data);
+
 /// Created by changlei on 2021/8/20.
 ///
 /// 命中测试检测器
@@ -85,14 +88,14 @@ class HitTestDetector {
 /// 扩展[HitTestResult]
 extension HitTestResultTarget on HitTestResult {
   /// 遍历访问target
-  bool any(bool Function(HitTestTarget target, Object? data) visitor) {
+  bool any(HitTestResultVisitor visitor) {
     return path.map((e) => e.target).any((element) {
       return visitor(element, element is RenderMetaData ? element.metaData : null);
     });
   }
 
   /// 遍历访问target
-  bool every(bool Function(HitTestTarget target, Object? data) visitor) {
+  bool every(HitTestResultVisitor visitor) {
     return path.map((e) => e.target).every((element) {
       return visitor(element, element is RenderMetaData ? element.metaData : null);
     });

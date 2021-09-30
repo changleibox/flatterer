@@ -162,18 +162,33 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
     super.dispose();
   }
 
-  bool _visitAny(HitTestTarget target, Object? data) {
-    return data != null && (data == this || data == widget.child);
+  /// 针对[PointerEvent]做命中测试
+  ///
+  /// 返回是否命中
+  bool hitTest(PointerEvent event, [HitTestResultVisitor? other]) {
+    bool visitor(HitTestTarget target, Object? data) {
+      return other?.call(target, data) == true || this.visitor(target, data);
+    }
+
+    if (event is PointerDownEvent) {
+      _isTapDownHit = event.result.any(visitor);
+    } else if (event is PointerUpEvent && !_isTapDownHit && !event.result.any(visitor)) {
+      _isTapDownHit = false;
+      return true;
+    }
+    return false;
+  }
+
+  /// 测试是否需要dismiss
+  bool visitor(HitTestTarget target, Object? data) {
+    return data == this || data == widget.child || target == context.findRenderObject();
   }
 
   void _handlePointerEvent(PointerEvent event) {
     if (!isShowing || !widget.barrierDismissible || widget.modalBarrier) {
       return;
     }
-    if (event is PointerDownEvent) {
-      _isTapDownHit = event.result.any(_visitAny);
-    } else if (event is PointerUpEvent && !_isTapDownHit && !event.result.any(_visitAny)) {
-      _isTapDownHit = false;
+    if (hitTest(event)) {
       dismiss();
     }
   }
