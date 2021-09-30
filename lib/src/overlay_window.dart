@@ -41,6 +41,7 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.above,
     this.onInserted,
     this.modalBarrier = false,
+    this.showWhenUnlinked = false,
   }) : super(key: key);
 
   /// 需要对齐的child
@@ -108,6 +109,9 @@ class OverlayWindowAnchor extends StatefulWidget {
 
   /// 是否使用[ModalBarrier]
   final bool modalBarrier;
+
+  /// [CompositedTransformFollower.showWhenUnlinked]
+  final bool showWhenUnlinked;
 
   @override
   OverlayWindowAnchorState createState() => OverlayWindowAnchorState();
@@ -249,6 +253,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       above: widget.above,
       onInserted: widget.onInserted,
       modalBarrier: widget.modalBarrier,
+      showWhenUnlinked: widget.showWhenUnlinked,
     );
   }
 
@@ -303,6 +308,7 @@ class OverlayWindowContainer extends StatefulWidget {
     this.barrierColor,
     this.preferBelow = true,
     this.modalBarrier = false,
+    this.showWhenUnlinked = false,
   }) : super(key: key);
 
   /// 需要对齐的child
@@ -359,6 +365,9 @@ class OverlayWindowContainer extends StatefulWidget {
   /// 是否使用[ModalBarrier]
   final bool modalBarrier;
 
+  /// [CompositedTransformFollower.showWhenUnlinked]
+  final bool showWhenUnlinked;
+
   @override
   OverlayWindowContainerState createState() => OverlayWindowContainerState();
 }
@@ -408,6 +417,7 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
       modalBarrier: widget.modalBarrier,
+      showWhenUnlinked: widget.showWhenUnlinked,
       child: widget.child,
     );
   }
@@ -466,6 +476,7 @@ class OverlayWindow {
     OverlayEntry? above,
     ValueChanged<OverlayEntry>? onInserted,
     bool modalBarrier = false,
+    bool showWhenUnlinked = false,
   }) {
     assert(margin >= 0);
     assert(alignment.abs() <= 1);
@@ -501,7 +512,7 @@ class OverlayWindow {
         if (link != null) {
           child = CompositedTransformFollower(
             link: link,
-            showWhenUnlinked: false,
+            showWhenUnlinked: showWhenUnlinked,
             offset: -(compositedTransformTarget ?? currentAnchor).topLeft,
             child: child,
           );
