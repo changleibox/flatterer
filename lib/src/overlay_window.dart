@@ -509,7 +509,7 @@ class OverlayWindow {
         if (modalBarrier) {
           child = Stack(
             children: [
-              _buildModalBarrier(context),
+              _buildModalBarrier(context, animation),
               child,
             ],
           );
@@ -545,9 +545,8 @@ class OverlayWindow {
     );
   }
 
-  Widget _buildModalBarrier(BuildContext context) {
+  Widget _buildModalBarrier(BuildContext context, Animation<double> animation) {
     final modalRoute = _route!;
-    final animation = modalRoute.animation!;
     final barrierColor = modalRoute.barrierColor;
     final barrierDismissible = _route!.barrierDismissible;
     final barrierLabel = _route!.barrierLabel;
