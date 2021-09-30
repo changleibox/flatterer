@@ -40,6 +40,7 @@ class OverlayWindowAnchor extends StatefulWidget {
     this.below,
     this.above,
     this.onInserted,
+    this.modalBarrier = false,
   }) : super(key: key);
 
   /// 需要对齐的child
@@ -105,6 +106,9 @@ class OverlayWindowAnchor extends StatefulWidget {
   /// 当窗口插入的时候
   final ValueChanged<OverlayEntry>? onInserted;
 
+  /// 是否使用[ModalBarrier]
+  final bool modalBarrier;
+
   @override
   OverlayWindowAnchorState createState() => OverlayWindowAnchorState();
 }
@@ -159,7 +163,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (!isShowing || !widget.barrierDismissible) {
+    if (!isShowing || !widget.barrierDismissible || widget.modalBarrier) {
       return;
     }
     if (event is PointerDownEvent) {
@@ -244,6 +248,7 @@ class OverlayWindowAnchorState extends State<OverlayWindowAnchor> with SingleTic
       below: widget.below,
       above: widget.above,
       onInserted: widget.onInserted,
+      modalBarrier: widget.modalBarrier,
     );
   }
 
@@ -297,6 +302,7 @@ class OverlayWindowContainer extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
+    this.modalBarrier = false,
   }) : super(key: key);
 
   /// 需要对齐的child
@@ -350,6 +356,9 @@ class OverlayWindowContainer extends StatefulWidget {
   /// 优先显示在末尾
   final bool preferBelow;
 
+  /// 是否使用[ModalBarrier]
+  final bool modalBarrier;
+
   @override
   OverlayWindowContainerState createState() => OverlayWindowContainerState();
 }
@@ -398,6 +407,7 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
       barrierDismissible: widget.barrierDismissible,
       barrierColor: widget.barrierColor,
       preferBelow: widget.preferBelow,
+      modalBarrier: widget.modalBarrier,
       child: widget.child,
     );
   }
@@ -455,6 +465,7 @@ class OverlayWindow {
     OverlayEntry? below,
     OverlayEntry? above,
     ValueChanged<OverlayEntry>? onInserted,
+    bool modalBarrier = false,
   }) {
     assert(margin >= 0);
     assert(alignment.abs() <= 1);
@@ -495,7 +506,14 @@ class OverlayWindow {
             child: child,
           );
         }
-        if (barrierColor != null && barrierColor.alpha != 0) {
+        if (modalBarrier) {
+          child = Stack(
+            children: [
+              _buildModalBarrier(context),
+              child,
+            ],
+          );
+        } else if (barrierColor != null && barrierColor.alpha != 0) {
           final color = animation.drive(
             ColorTween(
               begin: barrierColor.withOpacity(0.0),
@@ -525,6 +543,48 @@ class OverlayWindow {
       above: above,
       onInserted: onInserted,
     );
+  }
+
+  Widget _buildModalBarrier(BuildContext context) {
+    final modalRoute = _route!;
+    final animation = modalRoute.animation!;
+    final barrierColor = modalRoute.barrierColor;
+    final barrierDismissible = _route!.barrierDismissible;
+    final barrierLabel = _route!.barrierLabel;
+    final semanticsDismissible = _route!.semanticsDismissible;
+    Widget barrier;
+    if (barrierColor != null && barrierColor.alpha != 0) {
+      final color = animation.drive(
+        ColorTween(
+          begin: barrierColor.withOpacity(0.0),
+          end: barrierColor, // changedInternalState is called if barrierColor updates
+        ).chain(CurveTween(curve: modalRoute.barrierCurve)), // changedInternalState is called if barrierCurve updates
+      );
+      barrier = AnimatedModalBarrier(
+        color: color,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    } else {
+      barrier = ModalBarrier(
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    }
+    barrier = IgnorePointer(
+      ignoring: animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed,
+      child: barrier,
+    );
+    if (semanticsDismissible && barrierDismissible) {
+      // To be sorted after the _modalScope.
+      barrier = Semantics(
+        sortKey: const OrdinalSortKey(1.0),
+        child: barrier,
+      );
+    }
+    return barrier;
   }
 
   /// 隐藏
