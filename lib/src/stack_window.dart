@@ -36,6 +36,8 @@ class StackWindowContainer extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
+    this.modalBarrier = false,
+    this.showWhenUnlinked = false,
   }) : super(key: key);
 
   /// 需要对齐的child
@@ -89,6 +91,12 @@ class StackWindowContainer extends StatefulWidget {
   /// 优先显示在末尾
   final bool preferBelow;
 
+  /// 是否使用[ModalBarrier]
+  final bool modalBarrier;
+
+  /// [CompositedTransformFollower.showWhenUnlinked]
+  final bool showWhenUnlinked;
+
   @override
   StackWindowContainerState createState() => StackWindowContainerState();
 }
@@ -129,7 +137,7 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
   }
 
   void _handlePointerEvent(PointerEvent event) {
-    if (!isShowing || !widget.barrierDismissible) {
+    if (!isShowing || !widget.barrierDismissible || widget.modalBarrier) {
       return;
     }
     if (event is PointerDownEvent) {
@@ -238,6 +246,8 @@ class StackWindowContainerState extends State<StackWindowContainer> with SingleT
           barrierDismissible: widget.barrierDismissible,
           barrierColor: widget.barrierColor,
           preferBelow: widget.preferBelow,
+          modalBarrier: widget.modalBarrier,
+          showWhenUnlinked: widget.showWhenUnlinked,
           onDismiss: () {
             widget.onDismiss?.call();
             dismiss();
@@ -269,6 +279,8 @@ class StackWindow extends StatefulWidget {
     this.barrierDismissible = true,
     this.barrierColor,
     this.preferBelow = true,
+    this.modalBarrier = false,
+    this.showWhenUnlinked = false,
   }) : super(key: key);
 
   /// 锚点，这里坐标是相对于父控件的坐标
@@ -321,6 +333,12 @@ class StackWindow extends StatefulWidget {
 
   /// 优先显示在末尾
   final bool preferBelow;
+
+  /// 是否使用[ModalBarrier]
+  final bool modalBarrier;
+
+  /// [CompositedTransformFollower.showWhenUnlinked]
+  final bool showWhenUnlinked;
 
   @override
   StackWindowState createState() => StackWindowState();
@@ -395,7 +413,7 @@ class StackWindowState extends State<StackWindow> with TickerProviderStateMixin 
     if (child != null && widget.link != null) {
       child = CompositedTransformFollower(
         link: widget.link!,
-        showWhenUnlinked: false,
+        showWhenUnlinked: widget.showWhenUnlinked,
         offset: -widget.anchor!.topLeft,
         child: child,
       );
@@ -406,7 +424,14 @@ class StackWindowState extends State<StackWindow> with TickerProviderStateMixin 
         child: AnimatedSwitcher(
           duration: fadeDuration,
           transitionBuilder: (child, animation) {
-            if (widget.barrierColor != null && widget.barrierColor!.alpha != 0) {
+            if (widget.modalBarrier) {
+              child = Stack(
+                children: [
+                  _buildModalBarrier(context, animation),
+                  child,
+                ],
+              );
+            } else if (widget.barrierColor != null && widget.barrierColor!.alpha != 0) {
               final color = animation.drive(
                 ColorTween(
                   begin: widget.barrierColor!.withOpacity(0.0),
@@ -433,5 +458,45 @@ class StackWindowState extends State<StackWindow> with TickerProviderStateMixin 
         ),
       ),
     );
+  }
+
+  Widget _buildModalBarrier(BuildContext context, Animation<double> animation) {
+    final barrierColor = widget.barrierColor;
+    final barrierDismissible = widget.barrierDismissible;
+    final barrierLabel = _route?.barrierLabel;
+    final semanticsDismissible = _route?.semanticsDismissible == true;
+    Widget barrier;
+    if (barrierColor != null && barrierColor.alpha != 0) {
+      final color = animation.drive(
+        ColorTween(
+          begin: barrierColor.withOpacity(0.0),
+          end: barrierColor, // changedInternalState is called if barrierColor updates
+        ).chain(CurveTween(curve: Curves.ease)), // changedInternalState is called if barrierCurve updates
+      );
+      barrier = AnimatedModalBarrier(
+        color: color,
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    } else {
+      barrier = ModalBarrier(
+        dismissible: barrierDismissible,
+        semanticsLabel: barrierLabel,
+        barrierSemanticsDismissible: semanticsDismissible,
+      );
+    }
+    barrier = IgnorePointer(
+      ignoring: animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed,
+      child: barrier,
+    );
+    if (semanticsDismissible && barrierDismissible) {
+      // To be sorted after the _modalScope.
+      barrier = Semantics(
+        sortKey: const OrdinalSortKey(1.0),
+        child: barrier,
+      );
+    }
+    return barrier;
   }
 }
