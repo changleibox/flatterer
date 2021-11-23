@@ -441,7 +441,13 @@ class OverlayWindowContainerState extends State<OverlayWindowContainer> {
 /// 显示Overlay
 class OverlayWindow {
   /// 显示Overlay
-  OverlayWindow(this.context) : _overlay = AnimatedOverlay(context, rootOverlay: true);
+  OverlayWindow(
+    this.context, {
+    bool rootOverlay = true,
+  }) : _overlay = AnimatedOverlay(
+          context,
+          rootOverlay: rootOverlay,
+        );
 
   /// context
   final BuildContext context;
