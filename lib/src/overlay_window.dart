@@ -606,10 +606,11 @@ class OverlayWindow {
     }
     barrier = AnimatedBuilder(
       animation: animation,
+      child: barrier,
       builder: (context, child) {
         return IgnorePointer(
           ignoring: animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed,
-          child: barrier,
+          child: child,
         );
       },
     );
