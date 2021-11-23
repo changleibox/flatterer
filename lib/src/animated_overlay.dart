@@ -129,7 +129,6 @@ class AnimatedOverlay {
       if (_controller == null) {
         return;
       }
-      _overlay?.markNeedsBuild();
       if (immediately) {
         _dispose();
       } else {

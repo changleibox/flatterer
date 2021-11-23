@@ -598,9 +598,14 @@ class OverlayWindow {
         barrierSemanticsDismissible: semanticsDismissible,
       );
     }
-    barrier = IgnorePointer(
-      ignoring: animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed,
-      child: barrier,
+    barrier = AnimatedBuilder(
+      animation: animation,
+      builder: (context, child) {
+        return IgnorePointer(
+          ignoring: animation.status == AnimationStatus.reverse || animation.status == AnimationStatus.dismissed,
+          child: barrier,
+        );
+      },
     );
     if (semanticsDismissible && barrierDismissible) {
       // To be sorted after the _modalScope.
