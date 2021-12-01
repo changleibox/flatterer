@@ -35,6 +35,11 @@ class AnimatedOverlay {
   /// 是否正在显示
   bool get isShowing => _overlay != null;
 
+  /// Whether the [OverlayEntry] is currently mounted in the widget tree.
+  ///
+  /// The [OverlayEntry] notifies its listeners when this value changes.
+  bool get mounted => _overlayState.mounted && _overlay?.mounted == true;
+
   /// 添加监听，在[remove]以后执行
   void addListener(VoidCallback callback) {
     _listeners.add(callback);
@@ -57,7 +62,9 @@ class AnimatedOverlay {
     ValueChanged<OverlayEntry>? onInserted,
   }) {
     if (_isAnimatingStatus(AnimationStatus.forward) && !immediately) {
-      _overlay?.markNeedsBuild();
+      if (_overlay?.mounted == true) {
+        _overlay?.markNeedsBuild();
+      }
       return;
     }
     void insertOverlay() {
@@ -96,6 +103,9 @@ class AnimatedOverlay {
     }
 
     _controller?.dispose();
+    if (!_overlayState.mounted) {
+      return;
+    }
     _controller = AnimationController(
       vsync: _overlayState,
       value: _controller?.value,
@@ -129,7 +139,9 @@ class AnimatedOverlay {
       if (_controller == null) {
         return;
       }
-      _overlay?.markNeedsBuild();
+      if (_overlay?.mounted == true) {
+        _overlay?.markNeedsBuild();
+      }
       if (immediately) {
         _dispose();
       } else {
