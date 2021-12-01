@@ -68,7 +68,7 @@ class AnimatedOverlay {
       return;
     }
     void insertOverlay() {
-      if (_controller == null) {
+      if (_controller == null || !_overlayState.mounted) {
         return;
       }
       final animation = _controller!.view;
