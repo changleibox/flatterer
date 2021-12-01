@@ -102,10 +102,10 @@ class AnimatedOverlay {
       }
     }
 
-    _controller?.dispose();
     if (!_overlayState.mounted) {
       return;
     }
+    _controller?.dispose();
     _controller = AnimationController(
       vsync: _overlayState,
       value: _controller?.value,
