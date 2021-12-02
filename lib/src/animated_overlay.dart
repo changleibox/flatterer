@@ -177,7 +177,6 @@ class AnimatedOverlay {
     _scheduler = null;
     _overlay?.removeListener(_passiveDisposed);
     _overlay?.remove();
-    _overlay?.dispose();
     _overlay = null;
   }
 
