@@ -68,12 +68,12 @@ class AnimatedOverlay {
       return;
     }
     void insertOverlay() {
-      if (_controller == null || !_overlayState.mounted) {
+      final controller = _controller;
+      if (controller == null || !_overlayState.mounted) {
         return;
       }
-      final animation = _controller!.view;
-      _overlay?.remove();
-      _overlay = OverlayEntry(
+      final animation = controller.view;
+      final overlay = OverlayEntry(
         builder: (BuildContext context) {
           return AnimatedBuilder(
             animation: animation,
@@ -84,18 +84,22 @@ class AnimatedOverlay {
           );
         },
       );
+      overlay.addListener(_passiveDisposed);
+      _overlay?.removeListener(_passiveDisposed);
+      _overlay?.remove();
+      _overlay = overlay;
       _overlayState.insert(
-        _overlay!,
+        overlay,
         below: below,
         above: above,
       );
-      onInserted?.call(_overlay!);
+      onInserted?.call(overlay);
 
       if (immediately) {
-        _controller!.value = _controller!.upperBound;
+        controller.value = controller.upperBound;
       } else {
-        _controller!.animateTo(
-          _controller!.upperBound,
+        controller.animateTo(
+          controller.upperBound,
           duration: transitionDuration,
           curve: curve,
         );
@@ -126,6 +130,14 @@ class AnimatedOverlay {
     }
   }
 
+  // 此处说明_overlayState已经dispose
+  void _passiveDisposed() {
+    if (_overlay?.mounted == true) {
+      return;
+    }
+    _dispose();
+  }
+
   /// 隐藏
   void remove({
     Duration transitionDuration = fadeDuration,
@@ -136,17 +148,15 @@ class AnimatedOverlay {
       return;
     }
     void removeOverlay() {
-      if (_controller == null) {
-        return;
-      }
       if (_overlay?.mounted == true) {
         _overlay?.markNeedsBuild();
       }
-      if (immediately) {
+      final controller = _controller;
+      if (immediately || controller == null) {
         _dispose();
       } else {
-        final animateBack = _controller!.animateBack(
-          _controller!.lowerBound,
+        final animateBack = controller.animateBack(
+          controller.lowerBound,
           duration: transitionDuration,
           curve: curve,
         );
@@ -165,7 +175,9 @@ class AnimatedOverlay {
     _completer = null;
     _scheduler?.cancel();
     _scheduler = null;
+    _overlay?.removeListener(_passiveDisposed);
     _overlay?.remove();
+    _overlay?.dispose();
     _overlay = null;
   }
 
