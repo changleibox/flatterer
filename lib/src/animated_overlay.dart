@@ -7,7 +7,6 @@ import 'dart:async';
 import 'package:flatterer/src/dimens.dart';
 import 'package:flatterer/src/scheduler.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart';
 
 /// Created by changlei on 2020/8/7.

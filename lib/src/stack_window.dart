@@ -11,7 +11,6 @@ import 'package:flatterer/src/track_behavior.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/scheduler.dart';
 
 /// Created by changlei on 2020/8/14.
 ///
