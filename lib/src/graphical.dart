@@ -39,7 +39,6 @@ Rect pathBounds(
   double radius, {
   double rotation = 0,
   Offset offset = Offset.zero,
-  bool half = false,
 }) {
   final ae = radius / math.tan(radians);
   final ag = ae * math.cos(radians);
@@ -47,10 +46,7 @@ Rect pathBounds(
   final ai = ae / math.cos(radians) - radius;
 
   final matrix4 = Matrix4.rotationZ(rotation);
-  final rect = Rect.fromPoints(
-    Offset(-eg, ag),
-    Offset(half ? 0 : eg, half ? ai : ag),
-  );
+  final rect = Rect.fromPoints(Offset(-eg, ai), Offset(eg, ag));
   return MatrixUtils.transformRect(matrix4, rect).shift(offset);
 }
 
@@ -63,7 +59,6 @@ Path cornerPath(double width, double height, double radius) {
     radius / _topRadius,
     rotation: 0,
     offset: Offset(width / 2, 0),
-    half: true,
   );
 
   final left = pathBounds(
@@ -74,7 +69,7 @@ Path cornerPath(double width, double height, double radius) {
   );
 
   final path = Path();
-  path.moveTo(top.right, top.top);
+  path.moveTo(top.topCenter.dx, top.top);
   path.arcToPoint(top.bottomLeft, radius: Radius.circular(radius / _topRadius), clockwise: false);
   path.lineTo(left.right, left.top);
   path.arcToPoint(left.bottomLeft, radius: Radius.circular(radius * _bottomRadius), clockwise: true);
