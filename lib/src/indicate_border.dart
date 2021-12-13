@@ -114,7 +114,7 @@ class IndicateBorder extends OutlinedBorder {
     var path = graphical.trianglePath(
       width: width,
       height: height,
-      radius: _cornerRadius / 2,
+      radius: _cornerRadius / 3,
       blRadius: _cornerRadius * 1.5,
       brRadius: _cornerRadius * 1.5,
       avoidOffset: true,
