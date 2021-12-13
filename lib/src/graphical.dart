@@ -62,6 +62,10 @@ Path cornerPath({
   bool avoidOffset = false,
   void Function(Path path, Incircle top, Incircle left, Incircle right)? visitor,
 }) {
+  final path = Path();
+  if (width <= 0 || height <= 0) {
+    return path;
+  }
   final size = Size(width, height);
   final topRadius = radius / _topRadius;
   final leftRadius = radius * _bottomRadius;
@@ -77,7 +81,6 @@ Path cornerPath({
 
   final right = left.rotationY(radians180).shift(Offset(width, 0)).flipped;
 
-  final path = Path();
   visitor?.call(path, top, left, right);
   return path;
 }
