@@ -171,12 +171,12 @@ class Incircle {
 
   /// 角的弧度
   double get radians {
-    return math.acos((begin - end).distance / (2 * radius)) % radians360;
+    return correctRadians(math.acos((begin - end).distance / (2 * radius)));
   }
 
   /// 旋转的弧度
   double get rotation {
-    return (end - begin).direction % radians360;
+    return correctRadians((end - begin).direction);
   }
 
   /// 角的顶点
@@ -250,6 +250,12 @@ class Incircle {
       middle: middle,
       end: begin,
     );
+  }
+
+  /// 纠正[radians]，让它在[0, 360)之间
+  static double correctRadians(double radians) {
+    radians = radians % radians360;
+    return radians < 0 ? radians360 + radians : radians;
   }
 
   /// 修正因内切圆造成的位移
