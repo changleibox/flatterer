@@ -63,7 +63,7 @@ Path cornerPath({
   void Function(Path path, Incircle top, Incircle left, Incircle right)? visitor,
 }) {
   final path = Path();
-  if (width <= 0 || height <= 0) {
+  if (width <= 0 || height <= 0 || width.isInfinite || height.isInfinite) {
     return path;
   }
   final size = Size(width, height);
