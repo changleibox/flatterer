@@ -117,10 +117,15 @@ class Incircle {
     required this.begin,
     required this.middle,
     required this.end,
-  }) : center = centerOf(begin, end, middle);
+  })  : center = centerOf(begin, end, middle),
+        assert(begin.isFinite),
+        assert(middle.isFinite),
+        assert(end.isFinite);
 
   /// 根据一个角度和角内切圆的半径构建一个[Incircle]，[radians]为角对应的弧度，[radius]内切圆半径
   factory Incircle.fromRadians(double radians, double radius) {
+    assert(radians.isFinite && radians > 0 && radians < radians180);
+    assert(radius.isFinite && radius >= 0);
     final eg = radius * math.cos(radians);
     final ai = radius / math.sin(radians) - radius;
     final ag = ai + radius - radius * math.sin(radians);
@@ -134,6 +139,8 @@ class Incircle {
 
   /// 根据一个角度和角内切圆的半径构建一个[Incircle]，以[size]作为等腰三角形的底和高计算顶角的弧度，[radius]内切圆半径
   factory Incircle.fromSize(Size size, double radius, {bool avoidOffset = false}) {
+    assert(size.isFinite && !size.isEmpty);
+    assert(radius.isFinite && radius >= 0);
     final width = size.width;
     final height = size.height;
     var offsetHeight = height;
@@ -198,6 +205,7 @@ class Incircle {
   /// To translate a rectangle by separate x and y components rather than by an
   /// [Offset], consider [translate].
   Incircle shift(Offset offset) {
+    assert(offset.isFinite);
     return Incircle._(
       begin: begin + offset,
       middle: middle + offset,
@@ -207,6 +215,7 @@ class Incircle {
 
   /// 绕着Z轴顺时针旋转[radians]
   Incircle rotationX(double radians) {
+    assert(radians.isFinite);
     return Incircle._(
       begin: begin.rotationX(radians),
       middle: middle.rotationX(radians),
@@ -216,6 +225,7 @@ class Incircle {
 
   /// 绕着Z轴顺时针旋转[radians]
   Incircle rotationY(double radians) {
+    assert(radians.isFinite);
     return Incircle._(
       begin: begin.rotationY(radians),
       middle: middle.rotationY(radians),
@@ -225,6 +235,7 @@ class Incircle {
 
   /// 绕着Z轴顺时针旋转[radians]
   Incircle rotationZ(double radians) {
+    assert(radians.isFinite);
     return Incircle._(
       begin: begin.rotationZ(radians),
       middle: middle.rotationZ(radians),
@@ -243,6 +254,8 @@ class Incircle {
 
   /// 修正因内切圆造成的位移
   static double offsetOf(Size size, double radius) {
+    assert(size.isFinite && size >= Size.zero);
+    assert(radius.isFinite && radius >= 0);
     size = Size(size.width / 2, size.height - radius);
     final bof = size.radians;
     final boe = math.acos(radius / size.distance);
@@ -251,6 +264,7 @@ class Incircle {
 
   /// 根据圆上三个点计算圆心
   static Offset centerOf(Offset point1, Offset point2, Offset point3) {
+    assert(point1.isFinite && point2.isFinite && point3.isFinite);
     final x1 = point1.dx;
     final y1 = point1.dy;
     final x2 = point2.dx;
@@ -266,6 +280,7 @@ class Incircle {
     final f = math.pow(x3, 2) + math.pow(y3, 2) - math.pow(x2, 2) - math.pow(y2, 2);
     final dx = (b * f - e * c) / (b * d - e * a);
     final dy = (d * c - a * f) / (b * d - e * a);
+    assert(dx.isFinite && dy.isFinite);
     return Offset(dx, dy);
   }
 
