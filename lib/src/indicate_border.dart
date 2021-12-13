@@ -111,7 +111,7 @@ class IndicateBorder extends OutlinedBorder {
   }
 
   Path _getIndicatePath(double width, double height, [AxisDirection? direction, Offset? offset]) {
-    var path = graphical.trianglePath(width, height, _cornerRadius);
+    var path = graphical.trianglePath(width, height, _cornerRadius).shift(Offset(-width / 2, 0));
     if (direction != null && direction.angle % 360 != 0) {
       path = path.transform(Matrix4.rotationZ(direction.radians).storage);
     }

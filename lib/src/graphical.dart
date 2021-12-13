@@ -14,6 +14,10 @@ const radians90 = math.pi / 2;
 /// 360度对应的弧度
 const radians360 = math.pi * 2;
 
+const _topRadius = 2.0;
+
+const _bottomRadius = 1.5;
+
 /// Created by changlei on 2021/12/10.
 ///
 /// 计算各种图形
@@ -59,8 +63,8 @@ Path cornerPath({
   void Function(Path path, Incircle top, Incircle left, Incircle right)? visitor,
 }) {
   final size = Size(width, height);
-  final topRadius = radius;
-  final leftRadius = radius * 6;
+  final topRadius = radius / _topRadius;
+  final leftRadius = radius * _bottomRadius;
 
   final topRadians = size.semiRadians;
   final topOffset = Offset(width / 2, 0);
