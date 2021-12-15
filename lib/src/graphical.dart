@@ -147,8 +147,13 @@ class Incircle {
     if (avoidOffset) {
       offsetHeight = Incircle.offsetOf(size, radius);
     }
-    final radians = Size(width, offsetHeight).semiRadians;
-    return Incircle.fromRadians(radians, radius).shift(Offset(0, height - offsetHeight));
+    var offset = Offset.zero;
+    if (offsetHeight.isFinite) {
+      size = Size(width, offsetHeight);
+      offset = Offset(0, height - offsetHeight);
+    }
+    final radians = size.semiRadians;
+    return Incircle.fromRadians(radians, radius).shift(offset);
   }
 
   /// 内切圆的左切点
